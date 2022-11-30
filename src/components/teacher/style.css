@@ -1,0 +1,16 @@
+@media (min-width: 500px) {
+  .mainContainer {
+    margin: 50px;
+  }
+  .blankDiv {
+    height: 100px;
+  }
+}
+@media (max-width: 500px) {
+  .mainContainer {
+    margin: 20px;
+  }
+  .blankDiv {
+    height: 10px;
+  }
+}
