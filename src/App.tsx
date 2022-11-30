@@ -1,18 +1,23 @@
 import "./App.css";
+import AdminDashboard from "./components/admin/AdminDashboard";
+import PersistentDrawerLeft from "./components/student/PersistentDrawer";
 import StudentAssignmentScreen from "./components/student/StudentAssignmentScreen";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import StudentDashboard from "./components/student/StudentDashboard";
+import CreateAssignment from "./components/teacher/CreateAssignment";
+import TeacherAssignment from "./components/teacher/TeacherAssignment";
+import TeacherDashboard from "./components/teacher/TeacherDashboard";
+import TeacherSubmissions from "./components/teacher/TeacherSubmissions";
 function App() {
   return (
     <div className="App">
-      <Router>
-        <Routes>
-          <Route path="/" element={<h1>Home</h1>}></Route>
-          <Route
-            path="/student/assignment"
-            element={<StudentAssignmentScreen />}
-          ></Route>
-        </Routes>
-      </Router>
+      {/* <PersistentDrawerLeft /> */}
+      <TeacherDashboard />
+      {/* <TeacherAssignment /> */}
+      {/* <CreateAssignment /> */}
+      {/* <TeacherSubmissions /> */}
+      {/* <AdminDashboard /> */}
+      {/* <StudentDashboard/> */}
+      {/* <StudentAssignmentScreen /> */}
     </div>
   );
 }
