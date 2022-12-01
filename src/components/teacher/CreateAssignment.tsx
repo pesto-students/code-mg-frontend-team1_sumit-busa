@@ -32,9 +32,13 @@ function CreateAssignment() {
           );
         })}
       </Stepper>
-      {/* <CreateAssignmentDetails/> */}
-      {/* <CreateAssignmentConfig/> */}
-      <CreateAssignmentSummary />
+      {activeStep == 0 ? (
+        <CreateAssignmentDetails handleStepperNext={handleNext} />
+      ) : activeStep == 1 ? (
+        <CreateAssignmentConfig handleStepperNext={handleNext} handleStepperBack={handleBack}/>
+      ) : (
+        <CreateAssignmentSummary handleStepperBack={handleBack} />
+      )}
     </div>
   );
 }

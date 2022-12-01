@@ -8,11 +8,15 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import "./style.css";
 function TeacherAssignment() {
+  let navigate = useNavigate();
+
   const handleClickOpen = () => {
+    navigate('../teacher/createassignment')
     //send to create assignment page
   };
 
@@ -37,7 +41,7 @@ function TeacherAssignment() {
             </Typography>
             <Typography variant="body1">created on : 1st Nov 2022</Typography>
             <Typography variant="body1">Due Date: 10st Nov 2022</Typography>
-            <Button variant="outlined" sx={{ mt: 3 }}>
+            <Button variant="outlined" sx={{ mt: 3 }} onClick={()=>navigate('../teacher/submission')}>
               30 Submission
             </Button>
           </Card>

@@ -9,8 +9,12 @@ import {
 } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-
-function CreateAssignmentSummary() {
+interface CreateAssignmentSummaryInterface {
+  handleStepperBack: () => void;
+}
+function CreateAssignmentSummary({
+  handleStepperBack,
+}: CreateAssignmentSummaryInterface) {
   const [editState, setEditState] = React.useState(EditorState.createEmpty());
 
   //   React.useEffect(()=>{
@@ -83,10 +87,19 @@ function CreateAssignmentSummary() {
             fullWidth
           />
         </Grid>
-        <Grid xs={12} item m={2}>
-          <Button fullWidth variant="contained">
-            Create Assignment
+
+        <Grid
+          xs={12}
+          item
+          m={2}
+          display={"flex"}
+          p={2}
+          justifyContent="space-between"
+        >
+          <Button variant="contained" onClick={handleStepperBack}>
+            Back
           </Button>
+          <Button variant="contained"> Create Assignment</Button>
         </Grid>
       </Grid>
       <Grid item xs={12} lg={8} p={2}>

@@ -16,7 +16,14 @@ import draftToHtml from "draftjs-to-html";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import { isNil } from "lodash";
-function CreateAssignmentDetails() {
+
+interface CreateAssignmentDetailsParams {
+  handleStepperNext: () => void;
+}
+
+function CreateAssignmentDetails({
+  handleStepperNext,
+}: CreateAssignmentDetailsParams) {
   const [value, setValue] = React.useState<Dayjs | null>(dayjs("2022-04-07"));
   const [editState, setEditState] = React.useState(EditorState.createEmpty());
 
@@ -39,7 +46,9 @@ function CreateAssignmentDetails() {
     console.log("new ");
     console.log(draftToHtml(convertToRaw(editorState.getCurrentContent())));
   };
-
+  const handleNextButton = () => {
+    handleStepperNext();
+  };
   return (
     <Grid container textAlign={"left"}>
       <Grid
@@ -78,7 +87,12 @@ function CreateAssignmentDetails() {
           </LocalizationProvider>
         </Grid>
         <Grid xs={12} item m={2} display={"inline-flex"}>
-          <Button variant="contained" sx={{ alignSelf: "self-end" }} fullWidth>
+          <Button
+            variant="contained"
+            sx={{ alignSelf: "self-end" }}
+            fullWidth
+            onClick={handleNextButton}
+          >
             NEXT
           </Button>
         </Grid>
