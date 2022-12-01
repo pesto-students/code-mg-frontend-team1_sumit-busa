@@ -16,7 +16,12 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 
-function CreateAssignmentConfig() {
+interface CreateAssignmentConfigParams {
+    handleStepperNext: () => void;
+    handleStepperBack:()=>void;
+}
+  
+function CreateAssignmentConfig({handleStepperBack , handleStepperNext}:CreateAssignmentConfigParams) {
   const languages = [
     {
       value: "C",
@@ -127,8 +132,8 @@ function CreateAssignmentConfig() {
           p={2}
           justifyContent="space-between"
         >
-          <Button variant="contained">Back</Button>
-          <Button variant="contained">Next</Button>
+          <Button variant="contained" onClick={handleStepperBack}>Back</Button>
+          <Button variant="contained" onClick = {handleStepperNext}>Next</Button>
         </Grid>
       </Grid>
       <Grid item xs={12} lg={8} p={2}>

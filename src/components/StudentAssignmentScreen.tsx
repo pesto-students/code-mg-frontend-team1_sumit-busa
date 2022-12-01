@@ -1,7 +1,7 @@
 import React from "react";
 import Grid from "@mui/material/Grid";
-import MonacoEditor from "./MonacoEditor";
-import { useAssignmentQuery } from "../../services/api";
+import MonacoEditor from "./student/MonacoEditor";
+import { useAssignmentQuery } from "../services/api";
 
 function StudentAssignmentScreen() {
   const { isLoading, data } = useAssignmentQuery(1);

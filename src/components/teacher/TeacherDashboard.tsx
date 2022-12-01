@@ -11,7 +11,11 @@ import React from "react";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import "./style.css";
 import InviteStudent from "../student/InviteStudent";
+import { useNavigate } from 'react-router-dom';
+
 function TeacherDashboard() {
+  let navigate = useNavigate();
+
   const [openAddStudentsDialog, setOpenAddStudentsDialog] =
     React.useState(false);
 
@@ -63,7 +67,7 @@ function TeacherDashboard() {
                 Invite Students
               </Button>
             </div>
-            <IconButton>
+            <IconButton onClick={()=>{navigate('assignment')}}>
               <ArrowForwardIcon />
             </IconButton>
           </Card>
@@ -83,7 +87,7 @@ function TeacherDashboard() {
                 Invite Students
               </Button>
             </div>
-            <IconButton>
+            <IconButton onClick={()=>{navigate('assignment')}}>
               <ArrowForwardIcon />
             </IconButton>
           </Card>
@@ -103,7 +107,7 @@ function TeacherDashboard() {
                 Invite Students
               </Button>
             </div>
-            <IconButton>
+            <IconButton onClick={()=>{navigate('assignment')}}>
               <ArrowForwardIcon />
             </IconButton>
           </Card>
