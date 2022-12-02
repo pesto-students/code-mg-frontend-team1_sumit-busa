@@ -35,7 +35,6 @@ const useSocket = () => {
   );
 
   useEffect(() => {
-    console.log("use effect called");
     socket.on("connect", () => {
       console.log("connect");
       setIsConnected(true);
@@ -46,6 +45,13 @@ const useSocket = () => {
       setIsConnected(false);
     });
 
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+    };
+  }, [socket]);
+
+  useEffect(() => {
     Object.keys(EVENTS).forEach((event) => {
       socket.on(EVENTS[event as EventKeys], (payload) => {
         const eventName = event as EventKeys;
@@ -58,11 +64,9 @@ const useSocket = () => {
     });
 
     return () => {
-      socket.off("connect");
-      socket.off("disconnect");
       Object.keys(EVENTS).forEach((event) => socket.off(event));
     };
-  }, [eventHandlers, isConnected, socket]);
+  }, [eventHandlers, socket]);
 
   return { isConnected, registerEvent };
 };
