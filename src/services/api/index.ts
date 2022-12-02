@@ -29,7 +29,7 @@ export const api = createApi({
 
     assignment: builder.query<Assignment, number>({
       query: (id) => ({
-        url: `assignment/${id}`,
+        url: `student/assignment/${id}`,
       }),
     }),
   }),

@@ -3,9 +3,6 @@ import { io } from "socket.io-client";
 console.log(process.env.REACT_APP_BASE_URL);
 const baseUrl: string = process.env.REACT_APP_BASE_URL || "";
 const token = localStorage.token;
-const socket = io(baseUrl, {
-  extraHeaders: { Authorization: `Bearer ${token}` },
-});
 
 export const EVENTS = {
   submit: "assignment:submit",
@@ -17,6 +14,9 @@ type EventKeys = keyof typeof EVENTS;
 
 const useSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
+  const socket = io(baseUrl, {
+    extraHeaders: { Authorization: `Bearer ${token}` },
+  });
 
   const eventHandlers: Record<string, { handler: (payload: any) => void }> =
     useMemo(() => {
@@ -31,16 +31,18 @@ const useSocket = () => {
         socket.emit(EVENTS[eventName], payload);
       };
     },
-    [eventHandlers]
+    [eventHandlers, socket]
   );
 
   useEffect(() => {
+    console.log("use effect called");
     socket.on("connect", () => {
       console.log("connect");
       setIsConnected(true);
     });
 
     socket.on("disconnect", () => {
+      console.log("disconnect");
       setIsConnected(false);
     });
 
@@ -60,7 +62,7 @@ const useSocket = () => {
       socket.off("disconnect");
       Object.keys(EVENTS).forEach((event) => socket.off(event));
     };
-  }, [eventHandlers]);
+  }, [eventHandlers, isConnected, socket]);
 
   return { isConnected, registerEvent };
 };

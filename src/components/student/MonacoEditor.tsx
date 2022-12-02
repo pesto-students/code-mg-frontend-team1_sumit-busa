@@ -22,22 +22,30 @@ import {
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
+import { LANGUAGES } from "../../utils/constants";
 
-function MonacoEditor() {
-  const [code, setCode] = useState<string | undefined>("");
+interface Props {
+  selectedLanguage?: string;
+  languages: string[];
+  code?: string;
+  assignmentId: number;
+}
+function MonacoEditor(props: Props) {
+  const [code, setCode] = useState<string | undefined>(props.code);
   const [isDirty, setDirty] = useState(false);
   const [output, setOutput] = useState("");
   const [customInputText, setCustomInputText] = useState("");
   const { isConnected, registerEvent } = useSocket();
-  const languages: string[] = ["C", "C++", "Python", "Java"];
 
   const themes: { [key: string]: string } = {
     Dark: "vs-dark",
     Light: "light",
   };
 
-  const [selectedTheme, setSelectedTheme] = useState(themes["Light"]);
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
+  const [selectedTheme, setSelectedTheme] = useState(themes["Dark"]);
+  const [selectedLanguage, setSelectedLanguage] = useState(
+    props.selectedLanguage || props.languages[0]
+  );
   const [customInputVisible, setCustomInputVisible] = useState(false);
   const steps = ["Uploading", "Compiling", "Test Cases"];
 
@@ -55,7 +63,9 @@ function MonacoEditor() {
     setCustomInputVisible((pre) => !pre);
   };
   const handleLanguageChange = (e: SelectChangeEvent) => {
+    console.log("handle language change called", e.target.value);
     setSelectedLanguage(e.target.value);
+    handleSaveCode(code || "", e.target.value);
   };
   const handleThemeChange = (e: SelectChangeEvent) => {
     setSelectedTheme(themes[e.target.value]);
@@ -71,16 +81,25 @@ function MonacoEditor() {
     setCode(e);
     setDirty(true);
     if (e === undefined) return;
-    debounceHandleSave(e);
+    debounceHandleSave(e, selectedLanguage);
   };
 
-  const handleSaveCode = (code: string) => {
-    saveCode({ assignmentId: 1, language: "C", sourceCode: code });
+  const handleSaveCode = (code: string, selectedLanguage: string) => {
+    console.log({ selectedLanguage, code });
+    saveCode({
+      assignmentId: props.assignmentId,
+      language: selectedLanguage,
+      sourceCode: code,
+    });
   };
 
   const handleRunCode = () => {
-    console.log(code);
-    customRun({ sourceCode: code, language: "C", stdin: customInputText });
+    console.log({ code, selectedLanguage });
+    customRun({
+      sourceCode: code,
+      language: selectedLanguage,
+      stdin: customInputText,
+    });
   };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debounceHandleSave = useCallback(
@@ -89,11 +108,6 @@ function MonacoEditor() {
   );
   return (
     <div>
-      <div>
-        {isConnected ? "connected" : "Not connected"}{" "}
-        <div>{isDirty ? "Saving..." : "saved"}</div>
-      </div>
-
       <Paper sx={{ m: 1 }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <FormControl sx={{ width: "200px" }}>
@@ -110,7 +124,7 @@ function MonacoEditor() {
               onChange={handleLanguageChange}
               label="Language"
             >
-              {languages.map((lang) => {
+              {props.languages.map((lang) => {
                 return (
                   <MenuItem key={lang} value={lang}>
                     {lang}
@@ -119,6 +133,10 @@ function MonacoEditor() {
               })}
             </Select>
           </FormControl>
+          <div>
+            {isConnected ? "connected" : "Not connected"}{" "}
+            <div>{isDirty ? "Saving..." : "saved"}</div>
+          </div>
           <FormControl sx={{ width: "200px" }}>
             <InputLabel id="theme-simple-select-autowidth-label" margin="dense">
               Theme
@@ -146,11 +164,10 @@ function MonacoEditor() {
 
         <Editor
           height="60vh"
-          defaultLanguage="C"
+          language={LANGUAGES[selectedLanguage as keyof typeof LANGUAGES]}
           defaultValue={code}
           width="100%"
           theme={selectedTheme}
-          // theme="vs-dark"
           onChange={handleChange}
         />
       </Paper>

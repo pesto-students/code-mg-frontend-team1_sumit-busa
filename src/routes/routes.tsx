@@ -4,6 +4,7 @@ import Login from "../components/Login";
 import {
   LOGIN_ROUTE,
   REGISTER_ROUTE,
+  STUDENT_ASSIGNMENT_ROUTE,
   TEACHER_ASSIGNMENT_ROUTE,
   TEACHER_CREATE_ASSIGNMENT_ROUTE,
   TEACHER_DASHBOARD_ROUTE,
@@ -16,6 +17,7 @@ import TeacherAssignment from "../components/teacher/TeacherAssignment";
 import TeacherDashboard from "../components/teacher/TeacherDashboard";
 import TeacherSubmissions from "../components/teacher/TeacherSubmissions";
 import PersistentDrawerLeft from "../components/student/PersistentDrawer";
+import StudentAssignmentScreen from "../components/StudentAssignmentScreen";
 
 function MyRoutes() {
   // const [user,setUser] = useState('T');
@@ -69,6 +71,11 @@ function MyRoutes() {
       <Route
         path={TEACHER_SUBMISSIONS_ROUTE}
         element={<TeacherSubmissions />}
+      />
+
+      <Route
+        path={STUDENT_ASSIGNMENT_ROUTE}
+        element={<StudentAssignmentScreen />}
       />
     </Routes>
   );
