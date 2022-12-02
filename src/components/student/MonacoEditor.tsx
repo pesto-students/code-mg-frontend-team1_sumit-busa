@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import _ from "lodash";
+import _, { result } from "lodash";
 import Editor from "@monaco-editor/react";
 import useSocket from "../../hooks/useSocket";
 
@@ -33,10 +33,13 @@ interface Props {
 function MonacoEditor(props: Props) {
   const [code, setCode] = useState<string | undefined>(props.code);
   const [isDirty, setDirty] = useState(false);
-  const [output, setOutput] = useState("");
   const [customInputText, setCustomInputText] = useState("");
-  const { isConnected, registerEvent } = useSocket();
+  const [compilationStatus, setCompilationStatus] = useState<CompilerOutput>();
+  const [uploadState, setUploadState] = useState<UploadState>();
+  const [testResults, setTestResults] = useState<TestResult[]>();
+  const [submissionResult, setSubmissionResult] = useState<Result>();
 
+  const { isConnected, registerEvent } = useSocket();
   const themes: { [key: string]: string } = {
     Dark: "vs-dark",
     Light: "light",
@@ -58,8 +61,34 @@ function MonacoEditor(props: Props) {
     if (payload === "success") setDirty(false);
     else alert("Error saving code");
   });
+  const customRun = registerEvent("customRun", (payload) => {
+    console.log({ payload, fff: "customRun" });
+    setCompilationStatus({ ...payload });
+  });
+
+  const submitAssignment = registerEvent(
+    "submit",
+    (payload: SubmissionOutput) => {
+      console.log({ payload });
+      setCompilationStatus(undefined);
+      if (payload.type === "uploaded") {
+        setUploadState(payload);
+      } else if (payload.type === "testCase") {
+        setTestResults((results) => {
+          if (results === undefined) {
+            return [payload];
+          } else {
+            return [...results, payload];
+          }
+        });
+      } else if (payload.type === "result") {
+        setSubmissionResult(payload);
+      }
+    }
+  );
 
   const handleCustomInputVisibility = () => {
+    setCustomInputText("");
     setCustomInputVisible((pre) => !pre);
   };
   const handleLanguageChange = (e: SelectChangeEvent) => {
@@ -70,12 +99,6 @@ function MonacoEditor(props: Props) {
   const handleThemeChange = (e: SelectChangeEvent) => {
     setSelectedTheme(themes[e.target.value]);
   };
-
-  const customRun = registerEvent("customRun", (payload) => {
-    console.log({ payload });
-    if (payload?.status?.id === 6) setOutput(payload.compile_output);
-    else setOutput(payload.stdout);
-  });
 
   const handleChange = (e: string | undefined) => {
     setCode(e);
@@ -93,11 +116,27 @@ function MonacoEditor(props: Props) {
     });
   };
 
+  const handleSubmitAssignment = () => {
+    setCompilationStatus({ status: Status.uploading });
+    setUploadState(undefined);
+    setTestResults(undefined);
+    setSubmissionResult(undefined);
+    submitAssignment({
+      sourceCode: code,
+      language: selectedLanguage,
+      assignmentId: props.assignmentId,
+    });
+  };
+
   const handleRunCode = () => {
-    console.log({ code, selectedLanguage });
+    setUploadState(undefined);
+    setTestResults(undefined);
+    setSubmissionResult(undefined);
+    setCompilationStatus({ status: Status.uploading });
     customRun({
       sourceCode: code,
       language: selectedLanguage,
+      assignmentId: props.assignmentId,
       stdin: customInputText,
     });
   };
@@ -197,7 +236,11 @@ function MonacoEditor(props: Props) {
           <Button variant="outlined" onClick={handleRunCode} sx={{ m: 1 }}>
             Run Code
           </Button>
-          <Button variant="contained" onClick={() => null} sx={{ m: 1 }}>
+          <Button
+            variant="contained"
+            onClick={handleSubmitAssignment}
+            sx={{ m: 1 }}
+          >
             Submit
           </Button>
         </div>
@@ -206,8 +249,8 @@ function MonacoEditor(props: Props) {
         <TextField
           variant="outlined"
           multiline
-          fullWidth
-          minRows={4}
+          style={{ width: "30%", display: "block !important" }}
+          minRows={2}
           value={customInputText}
           onChange={(e) => setCustomInputText(e.target.value)}
         />
@@ -220,52 +263,105 @@ function MonacoEditor(props: Props) {
         ></input> }*/
         <div></div>
       )}
-      <div>
-        {output?.split("\n")?.map((line) => (
-          <p key={line}>{line}</p>
-        ))}
-      </div>
-      <div className="stepper">
-        <Stepper activeStep={1}>
-          {steps.map((label, index) => {
-            const labelProps: {
-              optional?: React.ReactNode;
-              error?: boolean;
-              icon?: React.ReactNode;
-            } = {};
-            if (isStepFailed(index)) {
-              labelProps.optional = (
-                <Typography variant="caption" color="error">
-                  Failed
-                </Typography>
-              );
-              labelProps.error = true;
-            }
-            if (index == 2) {
-              labelProps.icon = <InfoOutlined />;
-            }
 
-            return (
-              <Step key={label}>
-                <StepLabel {...labelProps}>{label}</StepLabel>
-              </Step>
-            );
-          })}
-        </Stepper>
-      </div>
-      <div>
-        <Box sx={{ backgroundColor: "red", padding: 2, color: "white" }}>
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
-            <InfoOutlined />
-            <span>
-              <Typography>&nbsp;&nbsp;Compilation Error</Typography>
-            </span>
-          </div>
-          <div>Error message</div>
-        </Box>
+      <div>{compilationStatus && getRunStatus(compilationStatus)}</div>
+      <div style={{ height: "30vh" }}>
+        {getSubmissionStatus(uploadState, testResults, submissionResult)}
       </div>
     </div>
   );
 }
 
 export default MonacoEditor;
+
+const getSubmissionStatus = (
+  uploadState: UploadState | undefined,
+  testResults: TestResult[] | undefined,
+  finalResult: Result | undefined
+) => {
+  console.log({ finalResult, testResults });
+  return (
+    <>
+      {finalResult && (
+        <div>
+          {finalResult.successCount} out of {finalResult.totalCount} passed
+        </div>
+      )}
+      {uploadState && !finalResult && (
+        <>
+          Code Uploaded Successfully <br /> Running {uploadState.count}{" "}
+        </>
+      )}
+
+      {testResults &&
+        (finalResult === undefined ||
+          finalResult.successCount !== finalResult.errorCount) && (
+          <>
+            {testResults.map((test, index) => {
+              // if (test.status.status.description === "Accepted") return "";
+              return (
+                <div>
+                  Test : {index + 1} {getRunStatus(test.status)}
+                </div>
+              );
+            })}
+          </>
+        )}
+    </>
+  );
+};
+
+const getRunStatus = (data: CompilerOutput | "error") => {
+  console.log({ data });
+  if (data === "error") return "something went wrong";
+  const { status } = data;
+  if (status.description === "Uploading") return "Compiling";
+  else if (status.description === "Accepted") return "Success";
+  else if (status.description === "Compilation Error")
+    return data.compile_output;
+  else if (status.description === "Time Limit Exceeded")
+    return status.description;
+  else if (status.description === "Runtime Error (NZEC)") {
+    return data.stderr;
+  } else
+    return (
+      <>
+        {data.expectedOutput !== false && (
+          <>
+            <div>Wrong Answer</div>
+            <div>Expected: {data.expectedOutput}</div>
+          </>
+        )}
+        <div>Output : {data.stdout}</div>
+      </>
+    );
+};
+
+export type SubmissionOutput = UploadState | TestResult | Result;
+
+export type UploadState = { type: "uploaded"; count: number };
+export type TestResult = { type: "testCase"; status: CompilerOutput };
+export type Result = {
+  type: "result";
+  totalCount: number;
+  successCount: number;
+  errorCount: number;
+};
+
+export interface CompilerOutput {
+  compile_output?: string;
+  expectedOutput?: string | false;
+  stderr?: string;
+  stdout?: string;
+  status: typeof Status[keyof typeof Status];
+}
+export const Status = {
+  processing: { id: 2, description: "Processing" },
+  uploading: { id: 0, description: "Uploading" },
+  success: { id: 3, description: "Accepted" },
+  tle: { id: 5, description: "Time Limit Exceeded" },
+  compilationError: { id: 6, description: "Compilation Error" },
+  wrongAnswer: { id: 4, description: "Wrong Answer" },
+  accepted: { id: 3, description: "Accepted" },
+  runTimeError: { id: 11, description: "Runtime Error (NZEC)" },
+} as const;
