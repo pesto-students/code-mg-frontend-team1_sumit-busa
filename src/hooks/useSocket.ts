@@ -60,6 +60,7 @@ const useSocket = () => {
           eventHandlers[eventName] &&
           typeof eventHandlers[eventName].handler === "function"
         )
+          console.log({ event, payload });
           eventHandlers[eventName].handler(payload);
       });
     });

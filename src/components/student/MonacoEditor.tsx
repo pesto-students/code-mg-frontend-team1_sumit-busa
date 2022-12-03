@@ -78,7 +78,7 @@ function MonacoEditor(props: Props) {
   const submitAssignment = registerEvent(
     "submit",
     (payload: SubmissionOutput) => {
-      console.log({ payload });
+      console.log({ payload, type: "new" });
       setCompilationStatus(undefined);
       if (payload.type === "uploaded") {
         setUploadState(payload);
@@ -273,7 +273,7 @@ function MonacoEditor(props: Props) {
         <div></div>
       )}
 
-      <div>
+      <div style={{ width: "30%" }}>
         {compilationStatus &&
           getRunStatus(compilationStatus, customInputVisible)}
       </div>
@@ -292,6 +292,12 @@ const getSubmissionStatus = (
   finalResult: Result | undefined
 ) => {
   console.log({ finalResult, testResults });
+  let pendingTestCases =
+    (uploadState &&
+      uploadState.count - ((testResults && testResults.length) || 0)) ||
+    0;
+
+  pendingTestCases = pendingTestCases < 0 ? 0 : pendingTestCases;
   return (
     <>
       {finalResult && (
@@ -302,35 +308,35 @@ const getSubmissionStatus = (
       {uploadState && !finalResult && (
         <>
           Code Uploaded Successfully
-          <Grid container spacing={4} style={{ marginTop: 1 }}>
-            {Array(
-              uploadState.count - ((testResults && testResults.length) || 0)
-            )
-              .fill(1)
-              .map((_, index) => {
-                return (
-                  <Grid item sm={4}>
-                    <Alert severity="info">Running Test {index}</Alert>
-                  </Grid>
-                );
-              })}
-          </Grid>
+          {pendingTestCases && (
+            <Grid container spacing={4} style={{ marginTop: 1 }}>
+              {Array(pendingTestCases)
+                .fill(1)
+                .map((_, index) => {
+                  return (
+                    <Grid item sm={4}>
+                      <Alert severity="info">Running Test {index}</Alert>
+                    </Grid>
+                  );
+                })}
+            </Grid>
+          )}
         </>
       )}
 
       {testResults &&
         (finalResult === undefined ||
           finalResult.successCount !== finalResult.errorCount) && (
-          <>
+          <Grid container spacing={4} style={{ marginTop: 1 }}>
             {testResults.map((test, index) => {
               // if (test.status.status.description === "Accepted") return "";
               return (
-                <div>
-                  Test : {index + 1} {getRunStatus(test.status)}
-                </div>
+                <Grid item sm={4}>
+                  {getRunStatus(test.status)}
+                </Grid>
               );
             })}
-          </>
+          </Grid>
         )}
     </>
   );
@@ -339,11 +345,11 @@ const getSubmissionStatus = (
 const getRunStatus = (data: CompilerOutput | "error", customRun = false) => {
   console.log({ data });
   let text: string = "";
-  let details: string | undefined = "";
+  let details: ReactNode | undefined = "";
   let severity: "error" | "info" | "success" = "info";
   if (data === "error") return "something went wrong";
 
-  switch (data.status.description) {
+  switch (data?.status?.description) {
     case "Accepted":
       text = "Accepted";
       severity = "success";
@@ -353,64 +359,43 @@ const getRunStatus = (data: CompilerOutput | "error", customRun = false) => {
       severity = "info";
       break;
     case "Compilation Error":
-      text = "Failed";
+      text = data.status.description;
       severity = "error";
       details = data.compile_output;
+      break;
+    case "Runtime Error (NZEC)":
+      text = data.status.description;
+      severity = "error";
+      details = data.stderr;
+      break;
+    case "Time Limit Exceeded":
+      text = data.status.description;
+      severity = "error";
       break;
     case "Wrong Answer":
       text = data.status.description;
       severity = "error";
-      details = data.expectedOutput + " " + data.stdout;
+      details = (
+        <div>
+          <div> expected : {data.expectedOutput} </div>{" "}
+          <div> recieved {data.stdout}</div>
+        </div>
+      );
       break;
     default:
   }
 
   return (
     <AlertBar severity={severity} details={details}>
-      {" "}
       {text}
     </AlertBar>
   );
-  //todo
-  // const { status } = data;
-  // if (status.description === "Uploading")
-  //   return (
-  //     <Alert severity="info" style={{ width: "20%" }}>
-  //       Compiling
-  //     </Alert>
-  //   );
-  // else if (status.description === "Accepted")
-  //   return (
-  //     <Alert severity="success" style={{ width: "20%" }}>
-  //       Success
-  //     </Alert>
-  //   );
-  // else if (status.description === "Compilation Error")
-  //   return <AlertBar severity="error" text="Failed" />;
-  // else if (status.description === "Time Limit Exceeded")
-  //   return status.description;
-  // else if (status.description === "Runtime Error (NZEC)") {
-  //   return data.stderr;
-  // } else
-  //   return (
-  //     <>
-  //       {data.expectedOutput !== false && (
-  //         <>
-  //           <div>Wrong Answer</div>
-  //           <div>Expected: {data.expectedOutput}</div>
-  //         </>
-  //       )}
-  //       <Alert severity="success" style={{ width: "20%" }}>
-  //         output: {data.stdout}
-  //       </Alert>
-  //     </>
-  //   );
 };
 
 interface AlertProps {
   severity: "success" | "warning" | "error" | "info";
   children?: ReactNode;
-  details?: string;
+  details?: ReactNode;
 }
 export function AlertBar(props: AlertProps) {
   const [open, setOpen] = useState(false);
@@ -425,7 +410,7 @@ export function AlertBar(props: AlertProps) {
 
   const isClickable = props.details;
   return (
-    <Alert severity={props.severity} style={{ width: "30%" }}>
+    <Alert severity={props.severity}>
       {isClickable && (
         <div onClick={handleOpenModal} style={{ cursor: "pointer" }}>
           {props.children}
@@ -434,7 +419,18 @@ export function AlertBar(props: AlertProps) {
       {!isClickable && <div>{props.children}</div>}
 
       <div>
-        <Dialog open={open} onClose={handleCloseModal}>
+        <Dialog
+          open={open}
+          onClose={handleCloseModal}
+          sx={{
+            "& .MuiDialog-container": {
+              "& .MuiPaper-root": {
+                width: "100%",
+                maxWidth: "500px", // Set your width here
+              },
+            },
+          }}
+        >
           <DialogTitle id="alert-dialog-title">
             {props.children}
             <IconButton
