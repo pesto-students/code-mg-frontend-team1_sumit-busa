@@ -1,28 +1,33 @@
-import { useCallback, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import _, { result } from "lodash";
 import Editor from "@monaco-editor/react";
+import Alert from "@mui/material/Alert";
 import useSocket from "../../hooks/useSocket";
 
-import { InfoOutlined } from "@mui/icons-material";
 import {
   Button,
   Checkbox,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   FormControl,
   FormControlLabel,
+  Grid,
+  IconButton,
   InputLabel,
   MenuItem,
   Paper,
   Select,
   SelectChangeEvent,
-  Step,
-  StepLabel,
-  Stepper,
   TextField,
   Typography,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { Box } from "@mui/system";
 import { LANGUAGES } from "../../utils/constants";
+import { JsxChild } from "typescript";
 
 interface Props {
   selectedLanguage?: string;
@@ -65,6 +70,10 @@ function MonacoEditor(props: Props) {
     console.log({ payload, fff: "customRun" });
     setCompilationStatus({ ...payload });
   });
+
+  useEffect(() => {
+    console.log({ compilationStatus });
+  }, [compilationStatus]);
 
   const submitAssignment = registerEvent(
     "submit",
@@ -264,7 +273,10 @@ function MonacoEditor(props: Props) {
         <div></div>
       )}
 
-      <div>{compilationStatus && getRunStatus(compilationStatus)}</div>
+      <div>
+        {compilationStatus &&
+          getRunStatus(compilationStatus, customInputVisible)}
+      </div>
       <div style={{ height: "30vh" }}>
         {getSubmissionStatus(uploadState, testResults, submissionResult)}
       </div>
@@ -289,7 +301,20 @@ const getSubmissionStatus = (
       )}
       {uploadState && !finalResult && (
         <>
-          Code Uploaded Successfully <br /> Running {uploadState.count}{" "}
+          Code Uploaded Successfully
+          <Grid container spacing={4} style={{ marginTop: 1 }}>
+            {Array(
+              uploadState.count - ((testResults && testResults.length) || 0)
+            )
+              .fill(1)
+              .map((_, index) => {
+                return (
+                  <Grid item sm={4}>
+                    <Alert severity="info">Running Test {index}</Alert>
+                  </Grid>
+                );
+              })}
+          </Grid>
         </>
       )}
 
@@ -311,31 +336,130 @@ const getSubmissionStatus = (
   );
 };
 
-const getRunStatus = (data: CompilerOutput | "error") => {
+const getRunStatus = (data: CompilerOutput | "error", customRun = false) => {
   console.log({ data });
+  let text: string = "";
+  let details: string | undefined = "";
+  let severity: "error" | "info" | "success" = "info";
   if (data === "error") return "something went wrong";
-  const { status } = data;
-  if (status.description === "Uploading") return "Compiling";
-  else if (status.description === "Accepted") return "Success";
-  else if (status.description === "Compilation Error")
-    return data.compile_output;
-  else if (status.description === "Time Limit Exceeded")
-    return status.description;
-  else if (status.description === "Runtime Error (NZEC)") {
-    return data.stderr;
-  } else
-    return (
-      <>
-        {data.expectedOutput !== false && (
-          <>
-            <div>Wrong Answer</div>
-            <div>Expected: {data.expectedOutput}</div>
-          </>
-        )}
-        <div>Output : {data.stdout}</div>
-      </>
-    );
+
+  switch (data.status.description) {
+    case "Accepted":
+      text = "Accepted";
+      severity = "success";
+      break;
+    case "Uploading":
+      text = "Compiling";
+      severity = "info";
+      break;
+    case "Compilation Error":
+      text = "Failed";
+      severity = "error";
+      details = data.compile_output;
+      break;
+    case "Wrong Answer":
+      text = data.status.description;
+      severity = "error";
+      details = data.expectedOutput + " " + data.stdout;
+      break;
+    default:
+  }
+
+  return (
+    <AlertBar severity={severity} details={details}>
+      {" "}
+      {text}
+    </AlertBar>
+  );
+  //todo
+  // const { status } = data;
+  // if (status.description === "Uploading")
+  //   return (
+  //     <Alert severity="info" style={{ width: "20%" }}>
+  //       Compiling
+  //     </Alert>
+  //   );
+  // else if (status.description === "Accepted")
+  //   return (
+  //     <Alert severity="success" style={{ width: "20%" }}>
+  //       Success
+  //     </Alert>
+  //   );
+  // else if (status.description === "Compilation Error")
+  //   return <AlertBar severity="error" text="Failed" />;
+  // else if (status.description === "Time Limit Exceeded")
+  //   return status.description;
+  // else if (status.description === "Runtime Error (NZEC)") {
+  //   return data.stderr;
+  // } else
+  //   return (
+  //     <>
+  //       {data.expectedOutput !== false && (
+  //         <>
+  //           <div>Wrong Answer</div>
+  //           <div>Expected: {data.expectedOutput}</div>
+  //         </>
+  //       )}
+  //       <Alert severity="success" style={{ width: "20%" }}>
+  //         output: {data.stdout}
+  //       </Alert>
+  //     </>
+  //   );
 };
+
+interface AlertProps {
+  severity: "success" | "warning" | "error" | "info";
+  children?: ReactNode;
+  details?: string;
+}
+export function AlertBar(props: AlertProps) {
+  const [open, setOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpen(false);
+  };
+
+  const isClickable = props.details;
+  return (
+    <Alert severity={props.severity} style={{ width: "30%" }}>
+      {isClickable && (
+        <div onClick={handleOpenModal} style={{ cursor: "pointer" }}>
+          {props.children}
+        </div>
+      )}
+      {!isClickable && <div>{props.children}</div>}
+
+      <div>
+        <Dialog open={open} onClose={handleCloseModal}>
+          <DialogTitle id="alert-dialog-title">
+            {props.children}
+            <IconButton
+              aria-label="close"
+              onClick={handleCloseModal}
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {props.details}
+            </DialogContentText>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </Alert>
+  );
+}
 
 export type SubmissionOutput = UploadState | TestResult | Result;
 

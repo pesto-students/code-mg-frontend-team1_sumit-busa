@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
 console.log(process.env.REACT_APP_BASE_URL);
@@ -31,7 +32,7 @@ const useSocket = () => {
         socket.emit(EVENTS[eventName], payload);
       };
     },
-    [eventHandlers, socket]
+    []
   );
 
   useEffect(() => {
@@ -49,7 +50,7 @@ const useSocket = () => {
       socket.off("connect");
       socket.off("disconnect");
     };
-  }, [socket]);
+  }, []);
 
   useEffect(() => {
     Object.keys(EVENTS).forEach((event) => {
@@ -66,7 +67,7 @@ const useSocket = () => {
     return () => {
       Object.keys(EVENTS).forEach((event) => socket.off(event));
     };
-  }, [eventHandlers, socket]);
+  }, []);
 
   return { isConnected, registerEvent };
 };
