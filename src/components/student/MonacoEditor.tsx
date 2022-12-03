@@ -87,6 +87,16 @@ function MonacoEditor(props: Props) {
           if (results === undefined) {
             return [payload];
           } else {
+            const test = results.find(
+              (result) => result.status.testId === payload.status.testId
+            );
+            if (test) {
+              return results.map((result) => {
+                if (result.status.testId === payload.status.testId)
+                  return payload;
+                return result;
+              });
+            }
             return [...results, payload];
           }
         });
@@ -473,6 +483,7 @@ export interface CompilerOutput {
   expectedOutput?: string | false;
   stderr?: string;
   stdout?: string;
+  testId?: number;
   status: typeof Status[keyof typeof Status];
 }
 export const Status = {
