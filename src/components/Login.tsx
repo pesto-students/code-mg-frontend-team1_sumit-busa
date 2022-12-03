@@ -30,7 +30,7 @@ function Login() {
   const handleLogin = async (email: string, password: string) => {
     const result = await login({ email, password }).unwrap();
     localStorage.token = result.token;
-
+    localStorage.role = result.role;
     console.log({ result });
   };
   return (
