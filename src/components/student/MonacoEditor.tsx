@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useEffect, useState } from "react";
-import _, { result } from "lodash";
+import _ from "lodash";
 import Editor from "@monaco-editor/react";
 import Alert from "@mui/material/Alert";
 import useSocket from "../../hooks/useSocket";
@@ -22,12 +22,9 @@ import {
   Select,
   SelectChangeEvent,
   TextField,
-  Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { Box } from "@mui/system";
 import { LANGUAGES } from "../../utils/constants";
-import { JsxChild } from "typescript";
 
 interface Props {
   selectedLanguage?: string;
@@ -55,11 +52,6 @@ function MonacoEditor(props: Props) {
     props.selectedLanguage || props.languages[0]
   );
   const [customInputVisible, setCustomInputVisible] = useState(false);
-  const steps = ["Uploading", "Compiling", "Test Cases"];
-
-  const isStepFailed = (step: number) => {
-    return step === 1;
-  };
 
   const saveCode = registerEvent("save", (payload) => {
     console.log(payload);
