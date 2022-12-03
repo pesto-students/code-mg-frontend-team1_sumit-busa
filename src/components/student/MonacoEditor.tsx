@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import _ from "lodash";
 import Editor from "@monaco-editor/react";
 import Alert from "@mui/material/Alert";
@@ -53,49 +53,57 @@ function MonacoEditor(props: Props) {
   );
   const [customInputVisible, setCustomInputVisible] = useState(false);
 
-  const saveCode = registerEvent("save", (payload) => {
-    console.log(payload);
-    if (payload === "success") setDirty(false);
-    else alert("Error saving code");
-  });
-  const customRun = registerEvent("customRun", (payload) => {
-    console.log({ payload, fff: "customRun" });
-    setCompilationStatus({ ...payload });
-  });
+  const saveCode = useMemo(
+    () =>
+      registerEvent("save", (payload) => {
+        if (payload === "success") setDirty(false);
+        else alert("Error saving code");
+      }),
+    [registerEvent]
+  );
+
+  const customRun = useMemo(
+    () =>
+      registerEvent("customRun", (payload) => {
+        setCompilationStatus({ ...payload });
+      }),
+    [registerEvent]
+  );
 
   useEffect(() => {
     console.log({ compilationStatus });
   }, [compilationStatus]);
 
-  const submitAssignment = registerEvent(
-    "submit",
-    (payload: SubmissionOutput) => {
-      console.log({ payload, type: "new" });
-      setCompilationStatus(undefined);
-      if (payload.type === "uploaded") {
-        setUploadState(payload);
-      } else if (payload.type === "testCase") {
-        setTestResults((results) => {
-          if (results === undefined) {
-            return [payload];
-          } else {
-            const test = results.find(
-              (result) => result.status.testId === payload.status.testId
-            );
-            if (test) {
-              return results.map((result) => {
-                if (result.status.testId === payload.status.testId)
-                  return payload;
-                return result;
-              });
+  const submitAssignment = useMemo(
+    () =>
+      registerEvent("submit", (payload: SubmissionOutput) => {
+        setCompilationStatus(undefined);
+        if (payload.type === "uploaded") {
+          setUploadState(payload);
+        } else if (payload.type === "testCase") {
+          setTestResults((results) => {
+            if (results === undefined) {
+              return [payload];
+            } else {
+              const test = results.find(
+                (result) => result.status.testId === payload.status.testId
+              );
+              if (test) {
+                console.log("duplicate found!!");
+                return results.map((result) => {
+                  if (result.status.testId === payload.status.testId)
+                    return payload;
+                  return result;
+                });
+              }
+              return [...results, payload];
             }
-            return [...results, payload];
-          }
-        });
-      } else if (payload.type === "result") {
-        setSubmissionResult(payload);
-      }
-    }
+          });
+        } else if (payload.type === "result") {
+          setSubmissionResult(payload);
+        }
+      }),
+    [registerEvent]
   );
 
   const handleCustomInputVisibility = () => {
@@ -118,14 +126,16 @@ function MonacoEditor(props: Props) {
     debounceHandleSave(e, selectedLanguage);
   };
 
-  const handleSaveCode = (code: string, selectedLanguage: string) => {
-    console.log({ selectedLanguage, code });
-    saveCode({
-      assignmentId: props.assignmentId,
-      language: selectedLanguage,
-      sourceCode: code,
-    });
-  };
+  const handleSaveCode = useCallback(
+    (code: string, selectedLanguage: string) => {
+      saveCode({
+        assignmentId: props.assignmentId,
+        language: selectedLanguage,
+        sourceCode: code,
+      });
+    },
+    [props.assignmentId, saveCode]
+  );
 
   const handleSubmitAssignment = () => {
     setCompilationStatus({ status: Status.uploading });
@@ -151,10 +161,9 @@ function MonacoEditor(props: Props) {
       stdin: customInputText,
     });
   };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debounceHandleSave = useCallback(
-    _.debounce(handleSaveCode, 1000, { maxWait: 30000 }),
-    []
+  const debounceHandleSave = useMemo(
+    () => _.debounce(handleSaveCode, 1000, { maxWait: 30000 }),
+    [handleSaveCode]
   );
   return (
     <div>
@@ -293,7 +302,6 @@ const getSubmissionStatus = (
   testResults: TestResult[] | undefined,
   finalResult: Result | undefined
 ) => {
-  console.log({ finalResult, testResults });
   let pendingTestCases =
     (uploadState &&
       uploadState.count - ((testResults && testResults.length) || 0)) ||
@@ -333,7 +341,7 @@ const getSubmissionStatus = (
             {testResults.map((test, index) => {
               // if (test.status.status.description === "Accepted") return "";
               return (
-                <Grid item sm={4}>
+                <Grid item sm={4} key={test.status.testId}>
                   {getRunStatus(test.status)}
                 </Grid>
               );
@@ -345,7 +353,6 @@ const getSubmissionStatus = (
 };
 
 const getRunStatus = (data: CompilerOutput | "error", customRun = false) => {
-  console.log({ data });
   let text: string = "";
   let details: ReactNode | undefined = "";
   let severity: "error" | "info" | "success" = "info";
