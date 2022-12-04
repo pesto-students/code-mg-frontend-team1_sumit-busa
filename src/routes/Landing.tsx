@@ -1,6 +1,5 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { isPresentLocalStorageTokens, userRole } from "../utils/tokensHelper";
 import {  LOGIN_ROUTE } from "../utils/routesConstants";
 
 const Landing = () => {

@@ -1,11 +1,13 @@
 import { Button, Grid, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../services/api";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [login] = useLoginMutation();
+  const navigate = useNavigate();
 
   const handleAdminLogin = () => {
     alert("Coming soon");
@@ -28,10 +30,22 @@ function Login() {
   };
 
   const handleLogin = async (email: string, password: string) => {
-    const result = await login({ email, password }).unwrap();
-    localStorage.token = result.token;
-    localStorage.role = result.role;
-    console.log({ result });
+    try {
+      const result = await login({ email, password }).unwrap();
+      localStorage.token = result.token;
+      localStorage.role = result.role;
+      if (result.role === "Student") {
+        navigate("/student");
+      } else if (result.role === "Teacher") {
+        console.log("redirect should workd");
+        navigate("/teacher");
+      } else {
+        navigate("/");
+      }
+    } catch (ex: any) {
+      console.log(ex.data);
+      alert(ex.error || ex.data.message);
+    }
   };
   return (
     <Grid
@@ -102,3 +116,7 @@ function Login() {
 }
 
 export default Login;
+function useRouter() {
+  throw new Error("Function not implemented.");
+}
+

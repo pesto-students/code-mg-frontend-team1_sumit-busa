@@ -16,10 +16,12 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+import LogoutIcon from "@mui/icons-material/Logout";
 import { Assignment, Person } from "@mui/icons-material";
 import StudentAssignmentScreen from "../StudentAssignmentScreen";
+import { Button } from "@mui/material";
+import { isLoggedIn } from "../../utils/tokensHelper";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
 
@@ -76,7 +78,12 @@ export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
   const [currentPage, setCurrentpage] = React.useState("Assignment");
+  const navigate = useNavigate();
 
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -121,6 +128,15 @@ export default function PersistentDrawerLeft() {
           <Typography variant="h6" noWrap component="div">
             CodeMG
           </Typography>
+          {isLoggedIn() && (
+            <IconButton
+              color="inherit"
+              onClick={handleLogout}
+              sx={{ marginLeft: "auto" }}
+            >
+              <LogoutIcon />
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer

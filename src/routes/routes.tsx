@@ -1,5 +1,4 @@
-import { Routes, Route } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "../components/Login";
 import {
   LOGIN_ROUTE,
@@ -10,7 +9,7 @@ import {
   TEACHER_DASHBOARD_ROUTE,
   TEACHER_SUBMISSIONS_ROUTE,
 } from "../utils/routesConstants";
-import { isPresentLocalStorageTokens } from "../utils/tokensHelper";
+import { getRole, isLoggedIn, Role } from "../utils/tokensHelper";
 import Register from "../components/Register";
 import CreateAssignment from "../components/teacher/CreateAssignment";
 import TeacherAssignment from "../components/teacher/TeacherAssignment";
@@ -61,7 +60,14 @@ function MyRoutes() {
       <Route path="/" element={<Login />} />
       <Route path={LOGIN_ROUTE} element={<Login />} />
       <Route path={REGISTER_ROUTE} element={<Register />} />
-      <Route path="/teacher" element={<TeacherDashboard />} />
+      <Route
+        path="/teacher"
+        element={
+          <ProtectedRoute role="Teacher">
+            <TeacherDashboard />
+          </ProtectedRoute>
+        }
+      />
       <Route path={TEACHER_DASHBOARD_ROUTE} element={<TeacherDashboard />} />
       <Route path={TEACHER_ASSIGNMENT_ROUTE} element={<TeacherAssignment />} />
       <Route
@@ -82,3 +88,19 @@ function MyRoutes() {
 }
 
 export default MyRoutes;
+
+const ProtectedRoute = (props: {
+  role?: Role;
+  children: JSX.Element;
+  redirectTo?: string;
+}) => {
+  isLoggedIn();
+  const role = getRole();
+  const redirectTo = props.redirectTo ? props.redirectTo : "/login";
+
+  const isAuthorized = props.role ? props.role === role : true;
+  const isAuthenticated = isLoggedIn() && isAuthorized;
+
+  console.log({ isAuthenticated });
+  return isAuthenticated ? props.children : <Navigate to={redirectTo} />;
+};
