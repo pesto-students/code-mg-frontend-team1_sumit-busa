@@ -68,20 +68,46 @@ function MyRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route path={TEACHER_DASHBOARD_ROUTE} element={<TeacherDashboard />} />
-      <Route path={TEACHER_ASSIGNMENT_ROUTE} element={<TeacherAssignment />} />
+      <Route
+        path={TEACHER_DASHBOARD_ROUTE}
+        element={
+          <ProtectedRoute role="Teacher">
+            <TeacherDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={TEACHER_ASSIGNMENT_ROUTE}
+        element={
+          <ProtectedRoute role="Teacher">
+            <TeacherAssignment />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path={TEACHER_CREATE_ASSIGNMENT_ROUTE}
-        element={<CreateAssignment />}
+        element={
+          <ProtectedRoute role="Teacher">
+            <CreateAssignment />
+          </ProtectedRoute>
+        }
       />
       <Route
         path={TEACHER_SUBMISSIONS_ROUTE}
-        element={<TeacherSubmissions />}
+        element={
+          <ProtectedRoute role="Teacher">
+            <TeacherSubmissions />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path={STUDENT_ASSIGNMENT_ROUTE}
-        element={<StudentAssignmentScreen />}
+        element={
+          <ProtectedRoute role="Student">
+            <StudentAssignmentScreen />
+          </ProtectedRoute>
+        }
       />
     </Routes>
   );
