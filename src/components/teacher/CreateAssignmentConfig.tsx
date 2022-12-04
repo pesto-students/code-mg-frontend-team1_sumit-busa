@@ -1,10 +1,5 @@
-import Editor from "@monaco-editor/react";
 import {
   Button,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  FormGroup,
   Grid,
   InputLabel,
   MenuItem,
@@ -22,6 +17,7 @@ import MultipleSelect from "../common/MultiSelect";
 export interface AssignmentConfigProps {
   languages: string[];
   testCases: TestCase[];
+  runTime: number;
 }
 
 interface CreateAssignmentConfigParams {
@@ -40,12 +36,12 @@ function CreateAssignmentConfig({
   const [selectedLanguage, setSelectedLanguage] = React.useState<string[]>(
     data.languages
   );
-  const [runTime, setRunTime] = useState("5");
+  const [runTime, setRunTime] = useState(data.runTime);
 
   const [testCases, setTestCases] = useState<TestCase[]>(data.testCases);
 
   const onSubmit = () => {
-    handleSubmit({ languages: selectedLanguage, testCases });
+    handleSubmit({ languages: selectedLanguage, testCases, runTime });
   };
 
   const addTestCase = () => {
@@ -80,10 +76,11 @@ function CreateAssignmentConfig({
             <Grid item>
               <TextField
                 id="standard-basic"
+                type="number"
                 label="Maximum run time (Seconds)"
                 variant="standard"
                 value={runTime}
-                onChange={(e) => setRunTime(e.target.value)}
+                onChange={(e) => setRunTime(parseInt(e.target.value))}
                 fullWidth
               />
             </Grid>
@@ -91,7 +88,9 @@ function CreateAssignmentConfig({
               <Grid>
                 <Button
                   variant="outlined"
-                  onClick={() => handleStepperBack({ languages, testCases })}
+                  onClick={() =>
+                    handleStepperBack({ languages, testCases, runTime })
+                  }
                 >
                   Back
                 </Button>

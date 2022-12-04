@@ -1,12 +1,14 @@
 import { Grid, Step, StepLabel, Stepper } from "@mui/material";
 import { Dayjs } from "dayjs";
+import draftToHtml from "draftjs-to-html";
 import React, { useState } from "react";
-import { EditorState } from "react-draft-wysiwyg";
+import { convertToRaw } from "draft-js";
+import { useCreateAssignmentMutation } from "../../services/api";
 import CreateAssignmentConfig, {
   AssignmentConfigProps,
 } from "./CreateAssignmentConfig";
 import CreateAssignmentDetails from "./CreateAssignmentDetails";
-import CreateAssignmentSummary from "./CreateAssignmentSummary";
+import { EditorState } from "react-draft-wysiwyg";
 
 export interface Details {
   title: string;
@@ -23,7 +25,10 @@ function CreateAssignment() {
   const [config, setConfig] = useState<AssignmentConfigProps>({
     languages: [],
     testCases: [{ expectedOutput: "", input: "" }],
+    runTime: 5,
   });
+
+  const [createAssignment] = useCreateAssignmentMutation();
 
   const handleSetDetails = (data: Details) => {
     setDetails(data);
@@ -33,8 +38,26 @@ function CreateAssignment() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
-  const handleSubmit = (data: AssignmentConfigProps) => {
-    setConfig(config);
+  const handleSubmit = async (data: AssignmentConfigProps) => {
+    setConfig(data);
+    let problemStatement;
+    if (!details.problemStatement) {
+      problemStatement = "";
+    } else {
+      problemStatement = draftToHtml(
+        convertToRaw(details.problemStatement.getCurrentContent())
+      );
+    }
+    await createAssignment({
+      classId: 2,
+      maximumRunTime: config.runTime,
+      testCases: config.testCases,
+      title: details.title,
+      problemStatement,
+      dueDate: details.dueDate?.toISOString(),
+    }).unwrap();
+
+    alert("Created Success fully");
   };
 
   const handleBack = (config: AssignmentConfigProps) => {

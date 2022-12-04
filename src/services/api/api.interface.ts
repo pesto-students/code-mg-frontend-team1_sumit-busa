@@ -33,3 +33,12 @@ export interface TestCase {
   input: string;
   expectedOutput: string;
 }
+
+export interface CreateAssignment {
+  title: string;
+  dueDate?: string;
+  problemStatement?: string;
+  classId: number;
+  maximumRunTime: number;
+  testCases: TestCase[];
+}
