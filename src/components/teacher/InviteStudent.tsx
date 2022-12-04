@@ -8,17 +8,36 @@ import {
   TextField,
 } from "@mui/material";
 import React from "react";
+import { useAddStudentMutation } from "../../services/api";
+import { isNilOrEmpty } from "../../utils/helper";
 
 interface InviteStudentParams {
   handleClose: () => void;
-  snackbarHandler : ()=>void;
+  snackbarHandler: () => void;
   dialogOpen: boolean;
+  classId: number;
 }
 function InviteStudent({
   handleClose,
   dialogOpen,
   snackbarHandler,
+  classId,
 }: InviteStudentParams) {
+  const [addStudent] = useAddStudentMutation();
+  const handleAddStudentSubmit = () => {
+    if (isNilOrEmpty(email)) {
+    } else {
+      addStudent({ classId: classId, emails: [email] });
+      snackbarHandler();
+      handleClose();
+    }
+  };
+
+  const [email, setEmail] = React.useState("");
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+
   return (
     <Dialog open={dialogOpen} onClose={handleClose}>
       <DialogTitle>Invite Students</DialogTitle>
@@ -34,10 +53,11 @@ function InviteStudent({
           type="email"
           fullWidth
           variant="standard"
+          onChange={handleEmailChange}
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Submit</Button>
+        <Button onClick={handleAddStudentSubmit}>Submit</Button>
       </DialogActions>
     </Dialog>
   );
