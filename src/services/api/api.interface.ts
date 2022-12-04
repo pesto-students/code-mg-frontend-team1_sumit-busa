@@ -1,3 +1,19 @@
+export interface AssignmentListTeacher {
+  id: number;
+  title: string;
+  createdAt: string;
+  dueDate: string;
+  _count: {
+    submissions: number;
+  };
+}
+export interface AssignmentListStudent {
+  id: number;
+  title: string;
+  createdAt: string;
+  dueDate: string;
+}
+
 export interface Assignment {
   title: string;
   problemStatement: string;

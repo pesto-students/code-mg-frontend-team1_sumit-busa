@@ -8,17 +8,30 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import "./style.css";
+import { useGetAllAssignmentsTeacherQuery } from "../../services/api";
 function TeacherAssignment() {
   let navigate = useNavigate();
 
   const handleClickOpen = () => {
-    navigate('../teacher/createassignment')
+    navigate("../teacher/createassignment");
     //send to create assignment page
   };
+
+  const { data, isLoading, isSuccess, isError, error } = useGetAllAssignmentsTeacherQuery(1);
+  let content;
+  if (isLoading) {
+    content = <p>Loading....</p>;
+  } else if (isSuccess) {
+    content = data;
+  } else {
+    console.log(error);
+    content = <p>error</p>;
+  }
+
 
   return (
     <div className="mainContainer">
@@ -34,18 +47,26 @@ function TeacherAssignment() {
         </Grid>
       </Grid>
       <Grid container>
+      {data &&
+          data.map((d) => {
+            return (
         <Grid sm={12} md={6} lg={4} item textAlign={"left"}>
           <Card sx={{ margin: 3, p: 2 }}>
             <Typography variant="h5" sx={{ m: 1 }}>
-              Assignment 1
+             {d.title}
             </Typography>
             <Typography variant="body1">created on : 1st Nov 2022</Typography>
             <Typography variant="body1">Due Date: 10st Nov 2022</Typography>
-            <Button variant="outlined" sx={{ mt: 3 }} onClick={()=>navigate('../teacher/submission')}>
-              30 Submission
+            <Button
+              variant="outlined"
+              sx={{ mt: 3 }}
+              onClick={() => navigate("../teacher/submission")}
+            >
+              {d._count.submissions} Submissions
             </Button>
           </Card>
         </Grid>
+            )})}
       </Grid>
       {/* <InviteStudent
       handleClose={handleClose}

@@ -1,6 +1,6 @@
 import { LoginPayload, LoginResponse } from "../../models/api.interface";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { AddStudentRequest, Assignment, ClassRequest, ClassResponse } from "./api.interface";
+import { AddStudentRequest, Assignment, ClassRequest, ClassResponse,AssignmentListStudent, AssignmentListTeacher } from "./api.interface";
 
 export const api = createApi({
   reducerPath: "codeMgAPI",
@@ -10,7 +10,7 @@ export const api = createApi({
     prepareHeaders: (headers) => {
       // const token = localStorage.token || "";
       const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZWFjaGVyQHRlc3QuY29tIiwiZnVsbE5hbWUiOiJ0ZWFjaGVyIHVzZXIiLCJyb2xlIjoiVGVhY2hlciIsImlhdCI6MTY3MDA1Njk2NSwiZXhwIjoxNjcwMTQzMzY1fQ.WKIbbgLa7wtTCen3smaUjrsG0KRHTmugnH80nE4gq5Q";
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZWFjaGVyQHRlc3QuY29tIiwiZnVsbE5hbWUiOiJ0ZWFjaGVyIHVzZXIiLCJyb2xlIjoiVGVhY2hlciIsImlhdCI6MTY3MDE0MzY2MywiZXhwIjoxNjcwMjMwMDYzfQ.E56V2nlsWD3bCgKavoIeVYs5MyF1V26vj4WrCxIf0_w";
       headers.set("Access-Control-Allow-Origin", "*");
       headers.set("Authorization", "Bearer " + token);
       // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZWFjaGVyQHRlc3QuY29tIiwiZnVsbE5hbWUiOiJ0ZWFjaGVyIHVzZXIiLCJyb2xlIjoiVGVhY2hlciIsImlhdCI6MTY3MDA1Njk2NSwiZXhwIjoxNjcwMTQzMzY1fQ.WKIbbgLa7wtTCen3smaUjrsG0KRHTmugnH80nE4gq5Q
@@ -63,16 +63,35 @@ export const api = createApi({
       query: () => ({ url: "/class" }),
       providesTags: ["class"],
     }),
+    getAllAssignmentsTeacher : builder.query<AssignmentListTeacher[],number>({
+      query:(id)=>({url:`/teacher/assignment?classId=${id}`})
+    }),
+    getAllAssignmentsStudent : builder.query<AssignmentListStudent[],number>({
+      query:(id)=>({url:`/student/assignment?classId=${id}`})
+    }),
+    getAllClassesStudent : builder.query<ClassResponse[],void>({
+      query: () => ({ url: "/class" }),
+      providesTags: ["class"],
+    })
   }),
+  
+
 });
 
 export const {
   useLoginMutation,
   useAssignmentQuery,
-  useGetClassQuery,
-  useAddStudentMutation,
-  useCreateClassMutation,
+  useGetClassQuery,//done
+  useAddStudentMutation,//done
+  useCreateClassMutation,//done
   useCreateAssignmentMutation,
+  useGetAllAssignmentsTeacherQuery,
+  useGetAllAssignmentsStudentQuery,
+  useGetAllClassesStudentQuery
+
+  // getassignment for both teacher and student
+  // get list of classes for student
+
 } = api;
 
 export default api;
