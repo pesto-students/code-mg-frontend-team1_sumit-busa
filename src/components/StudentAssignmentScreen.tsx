@@ -25,8 +25,10 @@ function StudentAssignmentScreen() {
         <div style={{}}>
           <MonacoEditor
             languages={data?.allowedLanguages}
-            code={data?.submissions[0].submission}
-            selectedLanguage={data?.submissions[0].language}
+            code={data?.submissions[0]?.submission}
+            selectedLanguage={
+              data?.submissions[0]?.language || data.allowedLanguages[0]
+            }
             assignmentId={parseInt(assignmentId)}
           />
         </div>
