@@ -10,7 +10,7 @@ export const TEACHER_SUBMISSIONS_ROUTE = '/teacher/submission';
 
 //student
 export const STUDENT_DASHBOARD_ROUTE = '/student/dashboard';
-export const STUDENT_CLASS_ROUTE = '/student/class';
+export const STUDENT_CLASS_ROUTE = "/student/class/:classId";
 export const STUDENT_ASSIGNMENT_ROUTE = "/student/assignment/:assignmentId";
 
 //admin

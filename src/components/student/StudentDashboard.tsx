@@ -1,6 +1,6 @@
 import { Button, Card, Grid, LinearProgress, Typography } from "@mui/material";
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useGetAllClassesStudentQuery } from "../../services/api";
 
 function StudentDashboard() {
@@ -22,7 +22,7 @@ function StudentDashboard() {
               <Card
                 sx={{ margin: 3, p: 2, textAlign: "left" }}
                 onClick={() => {
-                  navigate("class");
+                  navigate("class/" + d.id);
                 }}
               >
                 <Typography m={2} mb={0} variant="h5">
