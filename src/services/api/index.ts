@@ -6,6 +6,8 @@ import {
   ClassRequest,
   ClassResponse,
   CreateAssignment,
+  AssignmentListStudent,
+  AssignmentListTeacher,
 } from "./api.interface";
 
 export const api = createApi({
@@ -65,16 +67,32 @@ export const api = createApi({
       query: () => ({ url: "/class" }),
       providesTags: ["class"],
     }),
+    getAllAssignmentsTeacher: builder.query<AssignmentListTeacher[], number>({
+      query: (id) => ({ url: `/teacher/assignment?classId=${id}` }),
+    }),
+    getAllAssignmentsStudent: builder.query<AssignmentListStudent[], number>({
+      query: (id) => ({ url: `/student/assignment?classId=${id}` }),
+    }),
+    getAllClassesStudent: builder.query<ClassResponse[], void>({
+      query: () => ({ url: "/class" }),
+      providesTags: ["class"],
+    }),
   }),
 });
 
 export const {
   useLoginMutation,
   useAssignmentQuery,
-  useGetClassQuery,
-  useAddStudentMutation,
-  useCreateClassMutation,
+  useGetClassQuery, //done
+  useAddStudentMutation, //done
+  useCreateClassMutation, //done
   useCreateAssignmentMutation,
+  useGetAllAssignmentsTeacherQuery,
+  useGetAllAssignmentsStudentQuery,
+  useGetAllClassesStudentQuery,
+
+  // getassignment for both teacher and student
+  // get list of classes for student
 } = api;
 
 export default api;
