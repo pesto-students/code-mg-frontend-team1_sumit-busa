@@ -10,7 +10,7 @@ export const api = createApi({
     prepareHeaders: (headers) => {
       // const token = localStorage.token || "";
       const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZWFjaGVyQHRlc3QuY29tIiwiZnVsbE5hbWUiOiJ0ZWFjaGVyIHVzZXIiLCJyb2xlIjoiVGVhY2hlciIsImlhdCI6MTY3MDE0MzY2MywiZXhwIjoxNjcwMjMwMDYzfQ.E56V2nlsWD3bCgKavoIeVYs5MyF1V26vj4WrCxIf0_w";
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJzdHVkZW50QHRlc3QuY29tIiwiZnVsbE5hbWUiOiJzdHVkZW50IHVzZXIiLCJyb2xlIjoiU3R1ZGVudCIsImlhdCI6MTY3MDE0NDI4NiwiZXhwIjoxNjcwMjMwNjg2fQ.KiFPn13suT-cHZNQFgFkOJKgViTjSHf6dx6mYZY4E0o";
       headers.set("Access-Control-Allow-Origin", "*");
       headers.set("Authorization", "Bearer " + token);
       // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZW1haWwiOiJ0ZWFjaGVyQHRlc3QuY29tIiwiZnVsbE5hbWUiOiJ0ZWFjaGVyIHVzZXIiLCJyb2xlIjoiVGVhY2hlciIsImlhdCI6MTY3MDA1Njk2NSwiZXhwIjoxNjcwMTQzMzY1fQ.WKIbbgLa7wtTCen3smaUjrsG0KRHTmugnH80nE4gq5Q
@@ -67,7 +67,7 @@ export const api = createApi({
       query:(id)=>({url:`/teacher/assignment?classId=${id}`})
     }),
     getAllAssignmentsStudent : builder.query<AssignmentListStudent[],number>({
-      query:(id)=>({url:`/student/assignment?classId=${id}`})
+      query:(id)=>({url:`/teacher/assignment?classId=${id}`})
     }),
     getAllClassesStudent : builder.query<ClassResponse[],void>({
       query: () => ({ url: "/class" }),

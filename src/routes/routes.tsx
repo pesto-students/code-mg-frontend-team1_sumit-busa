@@ -5,6 +5,8 @@ import {
   LOGIN_ROUTE,
   REGISTER_ROUTE,
   STUDENT_ASSIGNMENT_ROUTE,
+  STUDENT_CLASS_ROUTE,
+  STUDENT_DASHBOARD_ROUTE,
   TEACHER_ASSIGNMENT_ROUTE,
   TEACHER_CREATE_ASSIGNMENT_ROUTE,
   TEACHER_DASHBOARD_ROUTE,
@@ -18,6 +20,8 @@ import TeacherDashboard from "../components/teacher/TeacherDashboard";
 import TeacherSubmissions from "../components/teacher/TeacherSubmissions";
 import PersistentDrawerLeft from "../components/student/PersistentDrawer";
 import StudentAssignmentScreen from "../components/StudentAssignmentScreen";
+import StudentDashboard from "../components/student/StudentDashboard";
+import StudentClass from "../components/student/StudentClass";
 
 function MyRoutes() {
   // const [user,setUser] = useState('T');
@@ -56,11 +60,11 @@ function MyRoutes() {
 
   return (
     <Routes>
-      {/* <Route path={ROOT_ROUTE} element={}/> */}
-
+      {/* base routes */}
       <Route path="/" element={<Login />} />
       <Route path={LOGIN_ROUTE} element={<Login />} />
       <Route path={REGISTER_ROUTE} element={<Register />} />
+      {/* teacher routes */}
       <Route path="/teacher" element={<TeacherDashboard />} />
       <Route path={TEACHER_DASHBOARD_ROUTE} element={<TeacherDashboard />} />
       <Route path={TEACHER_ASSIGNMENT_ROUTE} element={<TeacherAssignment />} />
@@ -72,6 +76,11 @@ function MyRoutes() {
         path={TEACHER_SUBMISSIONS_ROUTE}
         element={<TeacherSubmissions />}
       />
+      {/* student routes */}
+      <Route path="/student" element={<StudentDashboard />} />
+
+      <Route path={STUDENT_DASHBOARD_ROUTE} element={<StudentDashboard />} />
+      <Route path={STUDENT_CLASS_ROUTE} element={<StudentClass />} />
 
       <Route
         path={STUDENT_ASSIGNMENT_ROUTE}
