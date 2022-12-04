@@ -99,7 +99,7 @@ function TeacherDashboard() {
                   </div>
                   <IconButton
                     onClick={() => {
-                      navigate("assignment");
+                      navigate(d.id + "/assignment");
                     }}
                   >
                     <ArrowForwardIcon />

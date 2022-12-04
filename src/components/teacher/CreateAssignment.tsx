@@ -9,6 +9,7 @@ import CreateAssignmentConfig, {
 } from "./CreateAssignmentConfig";
 import CreateAssignmentDetails from "./CreateAssignmentDetails";
 import { EditorState } from "react-draft-wysiwyg";
+import { useParams } from "react-router-dom";
 
 export interface Details {
   title: string;
@@ -38,6 +39,7 @@ function CreateAssignment() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
+  const { classId } = useParams();
   const handleSubmit = async (data: AssignmentConfigProps) => {
     setConfig(data);
     let problemStatement;
@@ -49,7 +51,7 @@ function CreateAssignment() {
       );
     }
     await createAssignment({
-      classId: 2,
+      classId: parseInt(classId || ""),
       maximumRunTime: config.runTime,
       testCases: config.testCases,
       title: details.title,
