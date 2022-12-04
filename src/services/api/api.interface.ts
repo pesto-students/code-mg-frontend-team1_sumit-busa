@@ -44,3 +44,8 @@ export interface AddStudentRequest {
   classId: number;
   emails: String[];
 }
+
+export interface TestCase {
+  input: string;
+  expectedOutput: string;
+}

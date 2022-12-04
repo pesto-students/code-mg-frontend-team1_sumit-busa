@@ -10,4 +10,5 @@ export interface LoginPayload {
 
 export interface LoginResponse {
   token: string;
+  role: "Teacher" | "Student";
 }

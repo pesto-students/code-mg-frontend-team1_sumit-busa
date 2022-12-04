@@ -2,10 +2,19 @@ import React from "react";
 import Grid from "@mui/material/Grid";
 import MonacoEditor from "./student/MonacoEditor";
 import { useAssignmentQuery } from "../services/api";
+import { useParams } from "react-router-dom";
 
 function StudentAssignmentScreen() {
-  const { isLoading, data } = useAssignmentQuery(1);
-  if (isLoading) return <>Loading....</>;
+  const { assignmentId } = useParams();
+
+  console.log(assignmentId);
+  const { isLoading, data } = useAssignmentQuery(
+    parseInt(assignmentId || "-1")
+  );
+  if (!assignmentId) {
+    return <>invalid assignment id</>;
+  }
+  if (isLoading || !data) return <>Loading....</>;
   return (
     <Grid container spacing={2}>
       <Grid item xs={6}>
@@ -14,7 +23,12 @@ function StudentAssignmentScreen() {
       </Grid>
       <Grid item xs={6}>
         <div style={{}}>
-          <MonacoEditor />
+          <MonacoEditor
+            languages={data?.allowedLanguages}
+            code={data?.submissions[0].submission}
+            selectedLanguage={data?.submissions[0].language}
+            assignmentId={parseInt(assignmentId)}
+          />
         </div>
       </Grid>
     </Grid>

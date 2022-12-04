@@ -1,99 +1,172 @@
-import { useCallback, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import _ from "lodash";
 import Editor from "@monaco-editor/react";
+import Alert from "@mui/material/Alert";
 import useSocket from "../../hooks/useSocket";
 
-import { InfoOutlined } from "@mui/icons-material";
 import {
   Button,
   Checkbox,
+  Dialog,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   FormControl,
   FormControlLabel,
+  Grid,
+  IconButton,
   InputLabel,
   MenuItem,
   Paper,
   Select,
   SelectChangeEvent,
-  Step,
-  StepLabel,
-  Stepper,
   TextField,
-  Typography,
 } from "@mui/material";
-import { Box } from "@mui/system";
+import CloseIcon from "@mui/icons-material/Close";
+import { LANGUAGES } from "../../utils/constants";
 
-function MonacoEditor() {
-  const [code, setCode] = useState<string | undefined>("");
+interface Props {
+  selectedLanguage?: string;
+  languages: string[];
+  code?: string;
+  assignmentId: number;
+}
+function MonacoEditor(props: Props) {
+  const [code, setCode] = useState<string | undefined>(props.code);
   const [isDirty, setDirty] = useState(false);
-  const [output, setOutput] = useState("");
   const [customInputText, setCustomInputText] = useState("");
-  const { isConnected, registerEvent } = useSocket();
-  const languages: string[] = ["C", "C++", "Python", "Java"];
+  const [compilationStatus, setCompilationStatus] = useState<CompilerOutput>();
+  const [uploadState, setUploadState] = useState<UploadState>();
+  const [testResults, setTestResults] = useState<TestResult[]>();
+  const [submissionResult, setSubmissionResult] = useState<Result>();
 
+  const { isConnected, registerEvent } = useSocket();
   const themes: { [key: string]: string } = {
     Dark: "vs-dark",
     Light: "light",
   };
 
-  const [selectedTheme, setSelectedTheme] = useState(themes["Light"]);
-  const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
+  const [selectedTheme, setSelectedTheme] = useState(themes["Dark"]);
+  const [selectedLanguage, setSelectedLanguage] = useState(
+    props.selectedLanguage || props.languages[0]
+  );
   const [customInputVisible, setCustomInputVisible] = useState(false);
-  const steps = ["Uploading", "Compiling", "Test Cases"];
 
-  const isStepFailed = (step: number) => {
-    return step === 1;
-  };
+  const saveCode = useMemo(
+    () =>
+      registerEvent("save", (payload) => {
+        if (payload === "success") setDirty(false);
+        else alert("Error saving code");
+      }),
+    [registerEvent]
+  );
 
-  const saveCode = registerEvent("save", (payload) => {
-    console.log(payload);
-    if (payload === "success") setDirty(false);
-    else alert("Error saving code");
-  });
+  const customRun = useMemo(
+    () =>
+      registerEvent("customRun", (payload) => {
+        setCompilationStatus({ ...payload });
+      }),
+    [registerEvent]
+  );
+
+  useEffect(() => {
+    console.log({ compilationStatus });
+  }, [compilationStatus]);
+
+  const submitAssignment = useMemo(
+    () =>
+      registerEvent("submit", (payload: SubmissionOutput) => {
+        setCompilationStatus(undefined);
+        if (payload.type === "uploaded") {
+          setUploadState(payload);
+        } else if (payload.type === "testCase") {
+          setTestResults((results) => {
+            if (results === undefined) {
+              return [payload];
+            } else {
+              const test = results.find(
+                (result) => result.status.testId === payload.status.testId
+              );
+              if (test) {
+                console.log("duplicate found!!");
+                return results.map((result) => {
+                  if (result.status.testId === payload.status.testId)
+                    return payload;
+                  return result;
+                });
+              }
+              return [...results, payload];
+            }
+          });
+        } else if (payload.type === "result") {
+          setSubmissionResult(payload);
+        }
+      }),
+    [registerEvent]
+  );
 
   const handleCustomInputVisibility = () => {
+    setCustomInputText("");
     setCustomInputVisible((pre) => !pre);
   };
   const handleLanguageChange = (e: SelectChangeEvent) => {
+    console.log("handle language change called", e.target.value);
     setSelectedLanguage(e.target.value);
+    handleSaveCode(code || "", e.target.value);
   };
   const handleThemeChange = (e: SelectChangeEvent) => {
     setSelectedTheme(themes[e.target.value]);
   };
 
-  const customRun = registerEvent("customRun", (payload) => {
-    console.log({ payload });
-    if (payload?.status?.id === 6) setOutput(payload.compile_output);
-    else setOutput(payload.stdout);
-  });
-
   const handleChange = (e: string | undefined) => {
     setCode(e);
     setDirty(true);
     if (e === undefined) return;
-    debounceHandleSave(e);
+    debounceHandleSave(e, selectedLanguage);
   };
 
-  const handleSaveCode = (code: string) => {
-    saveCode({ assignmentId: 1, language: "C", sourceCode: code });
+  const handleSaveCode = useCallback(
+    (code: string, selectedLanguage: string) => {
+      saveCode({
+        assignmentId: props.assignmentId,
+        language: selectedLanguage,
+        sourceCode: code,
+      });
+    },
+    [props.assignmentId, saveCode]
+  );
+
+  const handleSubmitAssignment = () => {
+    setCompilationStatus({ status: Status.uploading });
+    setUploadState(undefined);
+    setTestResults(undefined);
+    setSubmissionResult(undefined);
+    submitAssignment({
+      sourceCode: code,
+      language: selectedLanguage,
+      assignmentId: props.assignmentId,
+    });
   };
 
   const handleRunCode = () => {
-    console.log(code);
-    customRun({ sourceCode: code, language: "C", stdin: customInputText });
+    setUploadState(undefined);
+    setTestResults(undefined);
+    setSubmissionResult(undefined);
+    setCompilationStatus({ status: Status.uploading });
+    customRun({
+      sourceCode: code,
+      language: selectedLanguage,
+      assignmentId: props.assignmentId,
+      stdin: customInputText,
+    });
   };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debounceHandleSave = useCallback(
-    _.debounce(handleSaveCode, 1000, { maxWait: 30000 }),
-    []
+  const debounceHandleSave = useMemo(
+    () => _.debounce(handleSaveCode, 1000, { maxWait: 30000 }),
+    [handleSaveCode]
   );
   return (
     <div>
-      <div>
-        {isConnected ? "connected" : "Not connected"}{" "}
-        <div>{isDirty ? "Saving..." : "saved"}</div>
-      </div>
-
       <Paper sx={{ m: 1 }}>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <FormControl sx={{ width: "200px" }}>
@@ -110,7 +183,7 @@ function MonacoEditor() {
               onChange={handleLanguageChange}
               label="Language"
             >
-              {languages.map((lang) => {
+              {props.languages.map((lang) => {
                 return (
                   <MenuItem key={lang} value={lang}>
                     {lang}
@@ -119,6 +192,10 @@ function MonacoEditor() {
               })}
             </Select>
           </FormControl>
+          <div>
+            {isConnected ? "connected" : "Not connected"}{" "}
+            <div>{isDirty ? "Saving..." : "saved"}</div>
+          </div>
           <FormControl sx={{ width: "200px" }}>
             <InputLabel id="theme-simple-select-autowidth-label" margin="dense">
               Theme
@@ -146,11 +223,10 @@ function MonacoEditor() {
 
         <Editor
           height="60vh"
-          defaultLanguage="C"
+          language={LANGUAGES[selectedLanguage as keyof typeof LANGUAGES]}
           defaultValue={code}
           width="100%"
           theme={selectedTheme}
-          // theme="vs-dark"
           onChange={handleChange}
         />
       </Paper>
@@ -180,7 +256,11 @@ function MonacoEditor() {
           <Button variant="outlined" onClick={handleRunCode} sx={{ m: 1 }}>
             Run Code
           </Button>
-          <Button variant="contained" onClick={() => null} sx={{ m: 1 }}>
+          <Button
+            variant="contained"
+            onClick={handleSubmitAssignment}
+            sx={{ m: 1 }}
+          >
             Submit
           </Button>
         </div>
@@ -189,8 +269,8 @@ function MonacoEditor() {
         <TextField
           variant="outlined"
           multiline
-          fullWidth
-          minRows={4}
+          style={{ width: "30%", display: "block !important" }}
+          minRows={2}
           value={customInputText}
           onChange={(e) => setCustomInputText(e.target.value)}
         />
@@ -203,52 +283,215 @@ function MonacoEditor() {
         ></input> }*/
         <div></div>
       )}
-      <div>
-        {output?.split("\n")?.map((line) => (
-          <p key={line}>{line}</p>
-        ))}
-      </div>
-      <div className="stepper">
-        <Stepper activeStep={1}>
-          {steps.map((label, index) => {
-            const labelProps: {
-              optional?: React.ReactNode;
-              error?: boolean;
-              icon?: React.ReactNode;
-            } = {};
-            if (isStepFailed(index)) {
-              labelProps.optional = (
-                <Typography variant="caption" color="error">
-                  Failed
-                </Typography>
-              );
-              labelProps.error = true;
-            }
-            if (index == 2) {
-              labelProps.icon = <InfoOutlined />;
-            }
 
-            return (
-              <Step key={label}>
-                <StepLabel {...labelProps}>{label}</StepLabel>
-              </Step>
-            );
-          })}
-        </Stepper>
+      <div style={{ width: "30%" }}>
+        {compilationStatus &&
+          getRunStatus(compilationStatus, customInputVisible)}
       </div>
-      <div>
-        <Box sx={{ backgroundColor: "red", padding: 2, color: "white" }}>
-          <div style={{ display: "flex", flexWrap: "wrap" }}>
-            <InfoOutlined />
-            <span>
-              <Typography>&nbsp;&nbsp;Compilation Error</Typography>
-            </span>
-          </div>
-          <div>Error message</div>
-        </Box>
+      <div style={{ height: "30vh" }}>
+        {getSubmissionStatus(uploadState, testResults, submissionResult)}
       </div>
     </div>
   );
 }
 
 export default MonacoEditor;
+
+const getSubmissionStatus = (
+  uploadState: UploadState | undefined,
+  testResults: TestResult[] | undefined,
+  finalResult: Result | undefined
+) => {
+  let pendingTestCases =
+    (uploadState &&
+      uploadState.count - ((testResults && testResults.length) || 0)) ||
+    0;
+
+  pendingTestCases = pendingTestCases < 0 ? 0 : pendingTestCases;
+  return (
+    <>
+      {finalResult && (
+        <div>
+          {finalResult.successCount} out of {finalResult.totalCount} passed
+        </div>
+      )}
+      {uploadState && !finalResult && (
+        <>
+          Code Uploaded Successfully
+          {pendingTestCases && (
+            <Grid container spacing={4} style={{ marginTop: 1 }}>
+              {Array(pendingTestCases)
+                .fill(1)
+                .map((_, index) => {
+                  return (
+                    <Grid item sm={4}>
+                      <Alert severity="info">Running Test {index}</Alert>
+                    </Grid>
+                  );
+                })}
+            </Grid>
+          )}
+        </>
+      )}
+
+      {testResults &&
+        (finalResult === undefined ||
+          finalResult.successCount !== finalResult.errorCount) && (
+          <Grid container spacing={4} style={{ marginTop: 1 }}>
+            {testResults.map((test, index) => {
+              // if (test.status.status.description === "Accepted") return "";
+              return (
+                <Grid item sm={4} key={test.status.testId}>
+                  {getRunStatus(test.status)}
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
+    </>
+  );
+};
+
+const getRunStatus = (data: CompilerOutput | "error", customRun = false) => {
+  let text: string = "";
+  let details: ReactNode | undefined = "";
+  let severity: "error" | "info" | "success" = "info";
+  if (data === "error") return "something went wrong";
+
+  switch (data?.status?.description) {
+    case "Accepted":
+      text = "Accepted";
+      severity = "success";
+      break;
+    case "Uploading":
+      text = "Compiling";
+      severity = "info";
+      break;
+    case "Compilation Error":
+      text = data.status.description;
+      severity = "error";
+      details = data.compile_output;
+      break;
+    case "Runtime Error (NZEC)":
+      text = data.status.description;
+      severity = "error";
+      details = data.stderr;
+      break;
+    case "Time Limit Exceeded":
+      text = data.status.description;
+      severity = "error";
+      break;
+    case "Wrong Answer":
+      text = data.status.description;
+      severity = "error";
+      details = (
+        <div>
+          <div> expected : {data.expectedOutput} </div>{" "}
+          <div> recieved {data.stdout}</div>
+        </div>
+      );
+      break;
+    default:
+  }
+
+  return (
+    <AlertBar severity={severity} details={details}>
+      {text}
+    </AlertBar>
+  );
+};
+
+interface AlertProps {
+  severity: "success" | "warning" | "error" | "info";
+  children?: ReactNode;
+  details?: ReactNode;
+}
+export function AlertBar(props: AlertProps) {
+  const [open, setOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpen(false);
+  };
+
+  const isClickable = props.details;
+  return (
+    <Alert severity={props.severity}>
+      {isClickable && (
+        <div onClick={handleOpenModal} style={{ cursor: "pointer" }}>
+          {props.children}
+        </div>
+      )}
+      {!isClickable && <div>{props.children}</div>}
+
+      <div>
+        <Dialog
+          open={open}
+          onClose={handleCloseModal}
+          sx={{
+            "& .MuiDialog-container": {
+              "& .MuiPaper-root": {
+                width: "100%",
+                maxWidth: "500px", // Set your width here
+              },
+            },
+          }}
+        >
+          <DialogTitle id="alert-dialog-title">
+            {props.children}
+            <IconButton
+              aria-label="close"
+              onClick={handleCloseModal}
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {props.details}
+            </DialogContentText>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </Alert>
+  );
+}
+
+export type SubmissionOutput = UploadState | TestResult | Result;
+
+export type UploadState = { type: "uploaded"; count: number };
+export type TestResult = { type: "testCase"; status: CompilerOutput };
+export type Result = {
+  type: "result";
+  totalCount: number;
+  successCount: number;
+  errorCount: number;
+};
+
+export interface CompilerOutput {
+  compile_output?: string;
+  expectedOutput?: string | false;
+  stderr?: string;
+  stdout?: string;
+  testId?: number;
+  status: typeof Status[keyof typeof Status];
+}
+export const Status = {
+  processing: { id: 2, description: "Processing" },
+  uploading: { id: 0, description: "Uploading" },
+  success: { id: 3, description: "Accepted" },
+  tle: { id: 5, description: "Time Limit Exceeded" },
+  compilationError: { id: 6, description: "Compilation Error" },
+  wrongAnswer: { id: 4, description: "Wrong Answer" },
+  accepted: { id: 3, description: "Accepted" },
+  runTimeError: { id: 11, description: "Runtime Error (NZEC)" },
+} as const;

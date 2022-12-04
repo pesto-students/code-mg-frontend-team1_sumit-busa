@@ -14,9 +14,29 @@ export const EVENTS = {
 } as const;
 
 type EventKeys = keyof typeof EVENTS;
-
 const useSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    if (socket.active) {
+      setIsConnected(true);
+    }
+
+    socket.on("connect", () => {
+      console.log("connect");
+      setIsConnected(true);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("disconnect");
+      setIsConnected(false);
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("disconnect");
+    };
+  }, []);
 
   const eventHandlers: Record<string, { handler: (payload: any) => void }> =
     useMemo(() => {
@@ -35,15 +55,6 @@ const useSocket = () => {
   );
 
   useEffect(() => {
-    socket.on("connect", () => {
-      console.log("connect");
-      setIsConnected(true);
-    });
-
-    socket.on("disconnect", () => {
-      setIsConnected(false);
-    });
-
     Object.keys(EVENTS).forEach((event) => {
       socket.on(EVENTS[event as EventKeys], (payload) => {
         const eventName = event as EventKeys;
@@ -51,13 +62,12 @@ const useSocket = () => {
           eventHandlers[eventName] &&
           typeof eventHandlers[eventName].handler === "function"
         )
-          eventHandlers[eventName].handler(payload);
+          console.log({ event, payload });
+        eventHandlers[eventName].handler(payload);
       });
     });
 
     return () => {
-      socket.off("connect");
-      socket.off("disconnect");
       Object.keys(EVENTS).forEach((event) => socket.off(event));
     };
   }, [eventHandlers]);

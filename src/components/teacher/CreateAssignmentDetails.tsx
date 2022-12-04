@@ -1,45 +1,29 @@
 import { Button, Grid, TextField, Typography } from "@mui/material";
-import React from "react";
-import dayjs, { Dayjs } from "dayjs";
+import React, { useState } from "react";
+import { Dayjs } from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import "./style.css";
-import {
-  ContentState,
-  convertFromHTML,
-  convertToRaw,
-  EditorState,
-} from "draft-js";
+import { convertToRaw, EditorState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 // import { Editor } from "react-draft-wysiwyg";
 import { Editor } from "react-draft-wysiwyg";
 import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
-import { isNil } from "lodash";
+import { DatePicker } from "@mui/x-date-pickers";
+import { Details } from "./CreateAssignment";
 
 interface CreateAssignmentDetailsParams {
-  handleStepperNext: () => void;
+  handleStepperNext: (data: Details) => void;
+  data: Details;
 }
 
 function CreateAssignmentDetails({
   handleStepperNext,
+  data,
 }: CreateAssignmentDetailsParams) {
-  const [value, setValue] = React.useState<Dayjs | null>(dayjs("2022-04-07"));
-  const [editState, setEditState] = React.useState(EditorState.createEmpty());
-
-  //   React.useEffect(()=>{
-  //       if (isNil(value)) {
-  //          setEditState( EditorState.createEmpty() );
-  //         } else {
-  //           const blocksFromHTML = convertFromHTML(value);
-  //           const stateData = ContentState.createFromBlockArray(
-  //             blocksFromHTML.contentBlocks,
-  //             blocksFromHTML.entityMap
-  //           );
-  //          setEditState(EditorState.createWithContent(stateData) );
-  //         }
-
-  //   },[])
+  const [dueDate, setValue] = React.useState<Dayjs | null>(data.dueDate);
+  const [editState, setEditState] = React.useState(data.problemStatement);
+  const [title, setTitle] = useState(data.title);
 
   const editorStateChange = (editorState: EditorState) => {
     setEditState(editorState);
@@ -47,46 +31,53 @@ function CreateAssignmentDetails({
     console.log(draftToHtml(convertToRaw(editorState.getCurrentContent())));
   };
   const handleNextButton = () => {
-    handleStepperNext();
+    handleStepperNext({
+      dueDate,
+      problemStatement: editState,
+      title,
+    });
   };
   return (
     <Grid container textAlign={"left"}>
       <Grid
         item
+        container
+        spacing={2}
         xs={12}
         lg={4}
         height={"80vh"}
-        display={"flex"}
-        flexDirection={"column"}
-        pr={5}
+        justifyContent="center"
+        alignItems="flex-start"
       >
-        <Grid xs={12} item m={2}>
+        <Grid xs={8} item m={1}>
           <TextField
             id="standard-basic"
             label="Name"
             variant="standard"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             fullWidth
           />
         </Grid>
         {/* <div className="blankDiv"/> */}
-        <Grid xs={12} item m={2}>
+        <Grid xs={8} item m={1}>
           <LocalizationProvider
             dateAdapter={AdapterDayjs}
             style={{ width: "100%" }}
           >
-            <DateTimePicker
+            <DatePicker
               renderInput={(props) => (
                 <TextField {...props} fullWidth variant="standard" />
               )}
               label="Due Date"
-              value={value}
+              value={dueDate}
               onChange={(newValue) => {
                 setValue(newValue);
               }}
             />
           </LocalizationProvider>
         </Grid>
-        <Grid xs={12} item m={2} display={"inline-flex"}>
+        <Grid xs={8} item m={1} display={"inline-flex"}>
           <Button
             variant="contained"
             sx={{ alignSelf: "self-end" }}

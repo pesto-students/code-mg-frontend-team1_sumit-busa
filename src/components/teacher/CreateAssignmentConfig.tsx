@@ -15,212 +15,152 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
+import { TestCase } from "../../services/api/api.interface";
+import { LANGUAGES } from "../../utils/constants";
+import MultipleSelect from "../common/MultiSelect";
+
+export interface AssignmentConfigProps {
+  languages: string[];
+  testCases: TestCase[];
+}
 
 interface CreateAssignmentConfigParams {
-    handleStepperNext: () => void;
-    handleStepperBack:()=>void;
+  handleSubmit: (data: AssignmentConfigProps) => void;
+  handleStepperBack: (data: AssignmentConfigProps) => void;
+  data: AssignmentConfigProps;
 }
-  
-function CreateAssignmentConfig({handleStepperBack , handleStepperNext}:CreateAssignmentConfigParams) {
-  const languages = [
-    {
-      value: "C",
-      label: "C",
-    },
-    {
-      value: "C++",
-      label: "C++",
-    },
-    {
-      value: "Python",
-      label: "Python",
-    },
-    {
-      value: "Java Script",
-      label: "Java Script",
-    },
-  ];
-  const [code, setCode] = useState<string | undefined>("");
 
-  const [language, setLanguage] = React.useState("C");
-  const [checkPlagiarism, setCheckPlagiarism] = React.useState(false);
+function CreateAssignmentConfig({
+  handleStepperBack,
+  handleSubmit,
+  data,
+}: CreateAssignmentConfigParams) {
+  const languages = Object.keys(LANGUAGES);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setLanguage(event.target.value);
+  const [selectedLanguage, setSelectedLanguage] = React.useState<string[]>(
+    data.languages
+  );
+  const [runTime, setRunTime] = useState("5");
+
+  const [testCases, setTestCases] = useState<TestCase[]>(data.testCases);
+
+  const onSubmit = () => {
+    handleSubmit({ languages: selectedLanguage, testCases });
   };
 
-  const handleCodeChange = (e: string | undefined) => {
-    setCode(e);
-    // setDirty(true);
-    // if (e === undefined) return;
-    // debounceHandleSave(e);
-  };
-  //   const languages: string[] = ["C", "C++", "Python", "Java"];
-  const themes: { [key: string]: string } = {
-    Dark: "vs-dark",
-    Light: "light",
+  const addTestCase = () => {
+    setTestCases([...testCases, { input: "", expectedOutput: "" }]);
   };
 
-  const [selectedTheme, setSelectedTheme] = useState(themes["Light"]);
-  const [selectedLanguage, setSelectedLanguage] = useState("C");
+  const removeTestCase = (index: number) => {
+    setTestCases(testCases.filter((_, i) => i !== index));
+  };
 
-  const handleCheckPlagiarism = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCheckPlagiarism(event.target.checked);
+  const handleTestChange = (index: number, input: string, output: string) => {
+    const updatedTestCases = testCases.map((test, i) => {
+      if (i === index) {
+        return { input, expectedOutput: output };
+      } else return test;
+    });
+    setTestCases(updatedTestCases);
   };
-  const handleLanguageChange = (e: SelectChangeEvent) => {
-    setSelectedLanguage(e.target.value);
-  };
-  const handleThemeChange = (e: SelectChangeEvent) => {
-    setSelectedTheme(themes[e.target.value]);
-  };
+
   return (
-    <Grid container textAlign={"left"}>
-      <Grid
-        item
-        xs={12}
-        lg={4}
-        height={"80vh"}
-        pr={5}
-      >
-        <Grid xs={12} item m={2}>
-          <TextField
-            fullWidth
-            id="outlined-select-currency"
-            select
-            label="Select Programming Language"
-            value={language}
-            onChange={handleChange}
-          >
-            {languages.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-        <Grid xs={12} item m={2}>
-          <TextField
-            id="standard-basic"
-            label="Maximum run time (Seconds)"
-            variant="standard"
-            fullWidth
-          />
-        </Grid>
-        <Grid xs={12} item m={2}>
-          <TextField
-            id="standard-basic"
-            label="Test Input"
-            variant="standard"
-            fullWidth
-          />
-        </Grid>
-        <Grid xs={12} item m={2}>
-          <TextField
-            id="standard-basic"
-            label="Expected Output"
-            variant="standard"
-            fullWidth
-          />
-        </Grid>
-        <Grid
-          xs={12}
-          item
-          m={2}
-          display={"flex"}
-          p={2}
-          justifyContent="space-between"
-        >
-          <Button variant="contained" onClick={handleStepperBack}>Back</Button>
-          <Button variant="contained" onClick = {handleStepperNext}>Next</Button>
-        </Grid>
-      </Grid>
-      <Grid item xs={12} lg={8} p={2}>
-        <FormGroup>
-          <FormControlLabel
-            style={{ alignSelf: "flex-start" }}
-            control={
-              <Switch
-                value={checkPlagiarism}
-                onChange={handleCheckPlagiarism}
+    <Grid container xs={12} justifyContent="center" mt={10}>
+      <Grid item container xs={12} lg={10}>
+        <Grid container item sm={12} md={6} justifyContent="center">
+          <Grid container direction="column" spacing={5} lg={8}>
+            <Grid item>
+              <MultipleSelect
+                values={languages}
+                label="Choose Programming Languages"
+                onChange={(value) => setSelectedLanguage(value)}
               />
-            }
-            label="Test for Plagiarism"
-            labelPlacement="start"
-          />
-        </FormGroup>
-        {checkPlagiarism ? (
-          <>
-            <Typography variant="body1" mt={4} mb={4}>
-              Sample Code for Plagiarism Scan
-            </Typography>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <FormControl sx={{ width: "200px" }}>
-                <InputLabel
-                  id="language-simple-select-autowidth-label"
-                  margin="dense"
+            </Grid>
+            <Grid item>
+              <TextField
+                id="standard-basic"
+                label="Maximum run time (Seconds)"
+                variant="standard"
+                value={runTime}
+                onChange={(e) => setRunTime(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid item container justifyContent="space-around" mt={10}>
+              <Grid>
+                <Button
+                  variant="outlined"
+                  onClick={() => handleStepperBack({ languages, testCases })}
                 >
-                  Language
-                </InputLabel>
-                <Select
-                  labelId="language-simple-select-autowidth-label"
-                  id="language-simple-select-autowidth"
-                  value={selectedLanguage}
-                  onChange={handleLanguageChange}
-                  label="Language"
-                >
-                  {languages.map((lang) => {
-                    return (
-                      <MenuItem key={lang.value} value={lang.value}>
-                        {lang.label}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
-              <FormControl sx={{ width: "200px" }}>
-                <InputLabel
-                  id="theme-simple-select-autowidth-label"
-                  margin="dense"
-                >
-                  Theme
-                </InputLabel>
-                <Select
-                  labelId="theme-simple-select-autowidth-label"
-                  id="language-simple-select-autowidth"
-                  value={Object.keys(themes).find(
-                    (key) => themes[key] === selectedTheme
+                  Back
+                </Button>
+              </Grid>
+              <Grid>
+                <Button variant="contained" onClick={() => onSubmit()}>
+                  Submit
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid md={6} direction="column" spacing={5} container>
+          {testCases.map((test, index) => {
+            return (
+              <Grid container item spacing={2}>
+                <Grid xs={12} textAlign="left" ml={2}>
+                  Test Case {index + 1}
+                </Grid>
+                <Grid xs={4} item>
+                  <TextField
+                    id="standard-basic"
+                    label="Test Input"
+                    key={"input" + index}
+                    value={test.input}
+                    onChange={(e) =>
+                      handleTestChange(
+                        index,
+                        e.target.value,
+                        test.expectedOutput
+                      )
+                    }
+                    variant="standard"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid xs={4} item>
+                  <TextField
+                    id="standard-basic"
+                    key={"output" + index}
+                    label="Expected Output"
+                    value={test.expectedOutput}
+                    onChange={(e) =>
+                      handleTestChange(index, test.input, e.target.value)
+                    }
+                    variant="standard"
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid xs={4} item>
+                  {index === testCases.length - 1 ? (
+                    <Button variant="outlined" onClick={addTestCase}>
+                      Add more{" "}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => removeTestCase(index)}
+                    >
+                      Remove
+                    </Button>
                   )}
-                  onChange={handleThemeChange}
-                  label="Theme"
-                >
-                  {Object.keys(themes).map((theme) => {
-                    return (
-                      <MenuItem key={theme} value={theme}>
-                        {theme}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
-            </div>
-
-            <Divider sx={{ m: 1 }} />
-
-            <Editor
-              height="60vh"
-              defaultLanguage="C"
-              defaultValue={code}
-              width="100%"
-              theme={selectedTheme}
-              // theme="vs-dark"
-              onChange={handleCodeChange}
-            />
-          </>
-        ) : (
-          <></>
-        )}
+                </Grid>
+              </Grid>
+            );
+          })}
+        </Grid>
       </Grid>
     </Grid>
   );
