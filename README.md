@@ -17,7 +17,7 @@ CodeMG is a single platform for all coding assignments with compiler and test ca
 
 ## Demo
 
-Link of project
+http://65.1.177.115:3000/login
 
 ## Installation
 
