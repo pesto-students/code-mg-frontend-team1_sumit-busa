@@ -57,4 +57,5 @@ export interface CreateAssignment {
   classId: number;
   maximumRunTime: number;
   testCases: TestCase[];
+  allowedLanguages: string[];
 }
