@@ -13,8 +13,8 @@ import {
 export const api = createApi({
   reducerPath: "codeMgAPI",
   baseQuery: fetchBaseQuery({
-    // baseUrl: `${process.env.REACT_APP_BASE_URL}/api`,
-    baseUrl: "http://localhost:8080/api",
+    baseUrl: `${process.env.REACT_APP_BASE_URL}/api`,
+    // baseUrl: "http://localhost:8080/api",
     prepareHeaders: (headers) => {
       const token = localStorage.token || "";
       headers.set("Access-Control-Allow-Origin", "*");

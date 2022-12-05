@@ -18,7 +18,6 @@ export interface Details {
 }
 function CreateAssignment() {
   const [activeStep, setActiveStep] = React.useState(0);
-  const navigate = useNavigate();
   const steps = ["Details", "Configuration"];
   const [details, setDetails] = useState<Details>({
     title: "",
