@@ -18,9 +18,13 @@ import TeacherAssignment from "../components/teacher/TeacherAssignment";
 import TeacherDashboard from "../components/teacher/TeacherDashboard";
 import TeacherSubmissions from "../components/teacher/TeacherSubmissions";
 import PersistentDrawerLeft from "../components/student/PersistentDrawer";
-import StudentAssignmentScreen from "../components/StudentAssignmentScreen";
 import StudentDashboard from "../components/student/StudentDashboard";
 import StudentClass from "../components/student/StudentClass";
+import { Suspense } from "react";
+import React from "react";
+const StudentAssignmentScreen = React.lazy(
+  () => import("../components/StudentAssignmentScreen")
+);
 
 function MyRoutes() {
   // const [user,setUser] = useState('T');
@@ -114,7 +118,9 @@ function MyRoutes() {
         path={STUDENT_ASSIGNMENT_ROUTE}
         element={
           <ProtectedRoute role="Student">
-            <StudentAssignmentScreen />
+            <Suspense fallback={<div>Loading...</div>}>
+              <StudentAssignmentScreen />
+            </Suspense>
           </ProtectedRoute>
         }
       />

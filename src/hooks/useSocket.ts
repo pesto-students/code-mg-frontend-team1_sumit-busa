@@ -1,11 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { io } from "socket.io-client";
-console.log(process.env.REACT_APP_BASE_URL);
-const baseUrl: string = process.env.REACT_APP_BASE_URL || "";
-const token = localStorage.token;
-const socket = io(baseUrl, {
-  extraHeaders: { Authorization: `Bearer ${token}` },
-});
+
+
+const getSocket = () => {
+  const baseUrl: string = process.env.REACT_APP_BASE_URL || "";
+  const token = localStorage.token;
+  console.log({ socketurl: process.env.REACT_APP_BASE_URL, token });
+  return io(baseUrl, {
+    extraHeaders: { Authorization: `Bearer ${token}` },
+  });
+};
+let socket = getSocket();
 
 export const EVENTS = {
   submit: "assignment:submit",
@@ -15,11 +20,11 @@ export const EVENTS = {
 
 type EventKeys = keyof typeof EVENTS;
 const useSocket = () => {
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(socket.connected);
 
   useEffect(() => {
-    if (socket.active) {
-      setIsConnected(true);
+    if (!socket.connected) {
+      socket = getSocket();
     }
 
     socket.on("connect", () => {
