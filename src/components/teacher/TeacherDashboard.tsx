@@ -75,6 +75,9 @@ function TeacherDashboard() {
           </Button>
         </Grid>
       </Grid>
+      {data?.length ==0 ? <Typography>
+        No classes present , you need to create one
+      </Typography> :
       <Grid container>
         {data &&
           data.map((d) => {
@@ -108,7 +111,7 @@ function TeacherDashboard() {
               </Grid>
             );
           })}
-      </Grid>
+      </Grid>}
       <InviteStudent
         handleClose={handleClose}
         dialogOpen={openAddStudentsDialog}

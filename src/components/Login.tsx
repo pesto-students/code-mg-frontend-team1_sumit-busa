@@ -18,7 +18,7 @@ function Login() {
     const password = "12345678";
     setEmail(email);
     setPassword(password);
-    handleLogin(email, password);
+    handleLogin(email, password,'Teacher');
   };
 
   const handleStudentLogin = () => {
@@ -26,17 +26,19 @@ function Login() {
     const password = "12345678";
     setEmail(email);
     setPassword(password);
-    handleLogin(email, password);
+    handleLogin(email, password,'Student');
   };
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async (email: string, password: string , role : string) => {
     try {
       const result = await login({ email, password }).unwrap();
+      console.log(result);
       localStorage.token = result.token;
-      localStorage.role = result.role;
-      if (result.role === "Student") {
+      localStorage.role = role;
+
+      if (role === "Student") {
         navigate("/student");
-      } else if (result.role === "Teacher") {
+      } else if (role === "Teacher") {
         console.log("redirect should workd");
         navigate("/teacher");
       } else {
@@ -77,14 +79,14 @@ function Login() {
           />
         </Grid>
 
-        <Grid item>
+        {/* <Grid item>
           <Button
             variant="contained"
             onClick={() => handleLogin(email, password)}
           >
             Login
           </Button>
-        </Grid>
+        </Grid> */}
 
         <Grid
           item

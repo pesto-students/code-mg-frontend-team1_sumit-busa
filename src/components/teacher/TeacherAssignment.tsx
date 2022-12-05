@@ -46,33 +46,37 @@ function TeacherAssignment() {
           </Button>
         </Grid>
       </Grid>
-      <Grid container>
-        {data &&
-          data.map((d) => {
-            return (
-              <Grid sm={12} md={6} lg={4} item textAlign={"left"}>
-                <Card sx={{ margin: 3, p: 2 }}>
-                  <Typography variant="h5" sx={{ m: 1 }}>
-                    {d.title}
-                  </Typography>
-                  <Typography variant="body1">
-                    created on : 1st Nov 2022
-                  </Typography>
-                  <Typography variant="body1">
-                    Due Date: 10st Nov 2022
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    sx={{ mt: 3 }}
-                    onClick={() => navigate("../teacher/submission")}
-                  >
-                    {d._count.submissions} Submissions
-                  </Button>
-                </Card>
-              </Grid>
-            );
-          })}
-      </Grid>
+      {data?.length == 0 ? (
+        <Typography>No Assignment present , you need to create one</Typography>
+      ) : (
+        <Grid container>
+          {data &&
+            data.map((d) => {
+              return (
+                <Grid sm={12} md={6} lg={4} item textAlign={"left"}>
+                  <Card sx={{ margin: 3, p: 2 }}>
+                    <Typography variant="h5" sx={{ m: 1 }}>
+                      {d.title}
+                    </Typography>
+                    <Typography variant="body1">
+                      created on : 1st Nov 2022
+                    </Typography>
+                    <Typography variant="body1">
+                      Due Date: 10st Nov 2022
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      sx={{ mt: 3 }}
+                      onClick={() => navigate("../teacher/submission")}
+                    >
+                      {d._count.submissions} Submissions
+                    </Button>
+                  </Card>
+                </Grid>
+              );
+            })}
+        </Grid>
+      )}
       {/* <InviteStudent
       handleClose={handleClose}
       dialogOpen={openAddStudentsDialog}

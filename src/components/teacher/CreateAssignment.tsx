@@ -9,7 +9,7 @@ import CreateAssignmentConfig, {
 } from "./CreateAssignmentConfig";
 import CreateAssignmentDetails from "./CreateAssignmentDetails";
 import { EditorState } from "react-draft-wysiwyg";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export interface Details {
   title: string;
@@ -18,6 +18,7 @@ export interface Details {
 }
 function CreateAssignment() {
   const [activeStep, setActiveStep] = React.useState(0);
+  const navigate = useNavigate();
   const steps = ["Details", "Configuration"];
   const [details, setDetails] = useState<Details>({
     title: "",
@@ -59,6 +60,7 @@ function CreateAssignment() {
       dueDate: details.dueDate?.toISOString(),
     }).unwrap();
 
+    navigate('../teacher');
     alert("Created Success fully");
   };
 

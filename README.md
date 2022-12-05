@@ -1,13 +1,18 @@
 # Code MG
+
 CodeMg provides a way for teachers to evaluate coding assignments effectively by automating code compilation and checking assignments for plagiarism.
 CodeMG is a single platform for all coding assignments with compiler and test cases.
 
 ## Table of Contents
 
 #### Demo
+
 #### Installation
+
 #### Technology Stack
+
 #### Authors
+
 #### License
 
 ## Demo
@@ -21,6 +26,10 @@ In the project directory, you run:
 #### `npm install`
 
 Installs all the necessary dependency in the project
+
+### Set process.env
+
+REACT_APP_BASE_URL = http://localhost:8080
 
 #### `npm start`
 
@@ -38,7 +47,6 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
-
 ## Technology Stack
 
 React.js with Typescript
@@ -52,16 +60,5 @@ Rockey Pandit
 Suraj Wadje
 
 ## Licence
- 
+
 MIT Licence
-
-
-
-
-
-
-
-
-
-
-
