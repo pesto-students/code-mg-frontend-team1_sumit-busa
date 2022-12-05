@@ -9,7 +9,7 @@ import CreateAssignmentConfig, {
 } from "./CreateAssignmentConfig";
 import CreateAssignmentDetails from "./CreateAssignmentDetails";
 import { EditorState } from "react-draft-wysiwyg";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export interface Details {
   title: string;
@@ -30,6 +30,7 @@ function CreateAssignment() {
   });
 
   const [createAssignment] = useCreateAssignmentMutation();
+  const navigate = useNavigate();
 
   const handleSetDetails = (data: Details) => {
     setDetails(data);
@@ -50,16 +51,33 @@ function CreateAssignment() {
         convertToRaw(details.problemStatement.getCurrentContent())
       );
     }
-    await createAssignment({
-      classId: parseInt(classId || ""),
-      maximumRunTime: config.runTime,
-      testCases: config.testCases,
-      title: details.title,
-      problemStatement,
-      dueDate: details.dueDate?.toISOString(),
-    }).unwrap();
 
-    alert("Created Success fully");
+    try {
+      await createAssignment({
+        classId: parseInt(classId || ""),
+        maximumRunTime: data.runTime,
+        testCases: data.testCases,
+        title: details.title,
+        problemStatement,
+        dueDate: details.dueDate?.toISOString(),
+        allowedLanguages: data.languages,
+      }).unwrap();
+      alert("Created Success fully");
+      navigate(`/teacher/${classId}/assignment`);
+    } catch (ex: any) {
+      const validations = ex?.data?.validations;
+      if (validations) {
+        let message = "";
+        validations.forEach((er: any) => {
+          message += er?.path?.join(".") + " : " + er?.message + " ";
+        });
+        alert(message);
+        console.log(message);
+      } else {
+        alert("Something went wrong");
+      }
+      console.log({ ex });
+    }
   };
 
   const handleBack = (config: AssignmentConfigProps) => {
