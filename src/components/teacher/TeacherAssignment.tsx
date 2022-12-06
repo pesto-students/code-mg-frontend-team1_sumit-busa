@@ -67,7 +67,7 @@ function TeacherAssignment() {
                     <Button
                       variant="outlined"
                       sx={{ mt: 3 }}
-                      onClick={() => navigate("../teacher/submission")}
+                      onClick={() => navigate(`/teacher/${d.id}/submission`)}
                     >
                       {d._count.submissions} Submissions
                     </Button>

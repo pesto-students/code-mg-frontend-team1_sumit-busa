@@ -65,7 +65,7 @@ function MyRoutes() {
     <Routes>
       {/* <Route path={ROOT_ROUTE} element={}/> */}
 
-      <Route path="/" element={<></>} />
+      <Route path="/" element={<Navigate to={"/login"} />} />
       <Route path={LOGIN_ROUTE} element={<Login />} />
       <Route path={REGISTER_ROUTE} element={<Register />} />
       <Route

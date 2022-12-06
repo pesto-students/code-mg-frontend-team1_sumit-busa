@@ -59,3 +59,17 @@ export interface CreateAssignment {
   testCases: TestCase[];
   allowedLanguages: string[];
 }
+
+
+export interface TeacherSubmission {
+  student: {
+    fullName: string;
+    email: string;
+  };
+  language: string;
+  status: string;
+  errorCount: number;
+  totalCount: number;
+  successCount: number;
+  updatedAt: string;
+}
