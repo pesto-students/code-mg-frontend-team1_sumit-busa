@@ -26,7 +26,9 @@ const columns: GridColDef[] = [
     field: "result",
     headerName: "Test Cases",
     renderCell: (d) => {
-      return `Passed ${d.row.result.successCount} / ${d.row.result.totalCount}`;
+      return `Passed ${d?.row?.result?.successCount || 0} / ${
+        d?.row?.result?.totalCount || 0
+      }`;
     },
     width: 160,
   },
