@@ -12,6 +12,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import "./style.css";
 import { useGetAllAssignmentsTeacherQuery } from "../../services/api";
+import { getFormattedDate } from "../../utils/helper";
 function TeacherAssignment() {
   let navigate = useNavigate();
   const { classId } = useParams();
@@ -59,10 +60,10 @@ function TeacherAssignment() {
                       {d.title}
                     </Typography>
                     <Typography variant="body1">
-                      created on : 1st Nov 2022
+                      Created on : {getFormattedDate(d.createdAt)}
                     </Typography>
                     <Typography variant="body1">
-                      Due Date: 10st Nov 2022
+                      Due Date: {getFormattedDate(d.dueDate)}
                     </Typography>
                     <Button
                       variant="outlined"
