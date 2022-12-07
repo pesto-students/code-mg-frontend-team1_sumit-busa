@@ -19,7 +19,10 @@ function StudentAssignmentScreen() {
     <Grid container spacing={2}>
       <Grid item xs={6}>
         <h1>{data?.title}</h1>
-        {data?.problemStatement}
+        <div
+          dangerouslySetInnerHTML={{ __html: data?.problemStatement }}
+          style={{ whiteSpace: "pre-wrap", textAlign: "left", margin: "2rem" }}
+        />
       </Grid>
       <Grid item xs={6}>
         <div style={{}}>
