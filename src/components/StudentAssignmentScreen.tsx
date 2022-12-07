@@ -3,7 +3,6 @@ import Grid from "@mui/material/Grid";
 import MonacoEditor from "./student/MonacoEditor";
 import { useAssignmentQuery } from "../services/api";
 import { useParams } from "react-router-dom";
-import { Typography } from "@mui/material";
 
 function StudentAssignmentScreen() {
   const { assignmentId } = useParams();
@@ -20,8 +19,10 @@ function StudentAssignmentScreen() {
     <Grid container spacing={2}>
       <Grid item xs={6}>
         <h1>{data?.title}</h1>
-        <Typography dangerouslySetInnerHTML={{__html: data?.problemStatement}} style={{ whiteSpace: "pre-wrap" }} />
-
+        <div
+          dangerouslySetInnerHTML={{ __html: data?.problemStatement }}
+          style={{ whiteSpace: "pre-wrap", textAlign: "left", margin: "2rem" }}
+        />
       </Grid>
       <Grid item xs={6}>
         <div style={{}}>
