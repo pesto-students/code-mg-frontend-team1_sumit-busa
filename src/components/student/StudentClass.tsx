@@ -2,6 +2,7 @@ import { Button, Card, Divider, Grid, Typography } from "@mui/material";
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useGetAllAssignmentsStudentQuery } from "../../services/api";
+import { getFormattedDate } from "../../utils/helper";
 import { STUDENT_ASSIGNMENT_ROUTE } from "../../utils/routesConstants";
 import "./style.css";
 function StudentClass() {
@@ -33,7 +34,6 @@ function StudentClass() {
           justifyContent={"space-between"}
         >
           <Typography>{location.state.description}</Typography>
-          <Typography sx={{ fontWeight: "bold" }}>Teacher name</Typography>
         </Grid>
         <Divider orientation="vertical" className="divider" />
         <Grid item xs={12} md={6} lg={8} display="flex" flexWrap={"wrap"}>
@@ -47,7 +47,7 @@ function StudentClass() {
                     </Typography>
                     <Typography variant="body1"></Typography>
                     <Typography variant="body1">
-                      Due Date: {d.dueDate}
+                      Due Date: {getFormattedDate(d.dueDate)}
                     </Typography>
                     <Button
                       variant="outlined"
