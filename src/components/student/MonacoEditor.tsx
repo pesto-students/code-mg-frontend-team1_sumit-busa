@@ -3,6 +3,7 @@ import _ from "lodash";
 import Editor from "@monaco-editor/react";
 import Alert from "@mui/material/Alert";
 import useSocket from "../../hooks/useSocket";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 import {
   Button,
@@ -235,6 +236,7 @@ function MonacoEditor(props: Props) {
           display: "flex",
           justifyContent: "space-between",
           padding: 20,
+          textAlign: "left",
         }}
       >
         <FormControlLabel
@@ -265,23 +267,17 @@ function MonacoEditor(props: Props) {
           </Button>
         </div>
       </div>
-      {customInputVisible ? (
-        <TextField
-          variant="outlined"
-          multiline
-          style={{ width: "30%", display: "block !important" }}
-          minRows={2}
-          value={customInputText}
-          onChange={(e) => setCustomInputText(e.target.value)}
-        />
-      ) : (
-        /* { <input
-        width={"100%"}
-          type="text"
-          value={customInputText}
-          onChange={(e) => setCustomInputText(e.target.value)}
-        ></input> }*/
-        <div></div>
+      {customInputVisible && (
+        <div style={{ width: "100%", textAlign: "left", marginBottom: "2rem" }}>
+          <TextField
+            variant="outlined"
+            multiline
+            style={{ width: "30%", display: "block !important" }}
+            minRows={2}
+            value={customInputText}
+            onChange={(e) => setCustomInputText(e.target.value)}
+          />
+        </div>
       )}
 
       <div style={{ width: "30%" }}>
@@ -311,16 +307,34 @@ const getSubmissionStatus = (
   return (
     <>
       {finalResult && (
-        <div>
-          {finalResult.successCount} out of {finalResult.totalCount} passed
-        </div>
+        <Grid item sm={12}>
+          <Grid item sm={4}>
+            <Alert
+              severity={
+                finalResult.successCount === finalResult.totalCount
+                  ? "success"
+                  : finalResult.successCount === 0
+                  ? "error"
+                  : "warning"
+              }
+            >
+              {" "}
+              {finalResult.successCount} out of {finalResult.totalCount} passed
+            </Alert>
+          </Grid>
+        </Grid>
       )}
       {uploadState && !finalResult && (
         <>
-          Code Uploaded Successfully
-          {pendingTestCases && (
-            <Grid container spacing={4} style={{ marginTop: 1 }}>
-              {Array(pendingTestCases)
+          <Grid container spacing={4} style={{ marginTop: 1 }}>
+            <Grid item sm={12}>
+              <Grid item sm={4}>
+                <Alert severity="success">Code Uploaded Successfully</Alert>
+              </Grid>
+            </Grid>
+
+            {pendingTestCases &&
+              Array(pendingTestCases)
                 .fill(1)
                 .map((_, index) => {
                   return (
@@ -329,8 +343,7 @@ const getSubmissionStatus = (
                     </Grid>
                   );
                 })}
-            </Grid>
-          )}
+          </Grid>
         </>
       )}
 
