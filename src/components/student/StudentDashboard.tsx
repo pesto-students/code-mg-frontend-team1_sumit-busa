@@ -22,9 +22,10 @@ function StudentDashboard() {
               <Card
                 sx={{ margin: 3, p: 2, textAlign: "left" }}
                 onClick={() => {
-                  navigate("class/" + d.id);
+                  navigate("class/" + d.id,{state:d});
                 }}
               >
+
                 <Typography m={2} mb={0} variant="h5">
                   {d.name}
                 </Typography>
@@ -32,7 +33,7 @@ function StudentDashboard() {
                   {d.description}
                 </Typography>
                 <Typography mx={2}>
-                  {d._count.assignments ?? 0} Submissions
+                  {d._count.assignments ?? 0} Assignments
                 </Typography>
                 {/* <LinearProgress
                   variant="determinate"
