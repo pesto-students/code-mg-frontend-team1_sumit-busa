@@ -2,6 +2,7 @@ import { Button, Grid, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../services/api";
+import { parseJwt } from "../utils/helper";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -18,7 +19,7 @@ function Login() {
     const password = "12345678";
     setEmail(email);
     setPassword(password);
-    handleLogin(email, password,'Teacher');
+    handleLogin(email, password, "Teacher");
   };
 
   const handleStudentLogin = () => {
@@ -26,15 +27,17 @@ function Login() {
     const password = "12345678";
     setEmail(email);
     setPassword(password);
-    handleLogin(email, password,'Student');
+    handleLogin(email, password, "Student");
   };
 
-  const handleLogin = async (email: string, password: string , role : string) => {
+  const handleLogin = async (email: string, password: string, role: string) => {
     try {
       const result = await login({ email, password }).unwrap();
-      console.log(result);
+      const data = parseJwt(result.token);
       localStorage.token = result.token;
       localStorage.role = role;
+      localStorage.email = data.email;
+      localStorage.name = data.fullName;
 
       if (role === "Student") {
         navigate("/student");

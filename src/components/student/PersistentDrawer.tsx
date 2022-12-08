@@ -129,13 +129,18 @@ export default function PersistentDrawerLeft() {
             CodeMG
           </Typography>
           {isLoggedIn() && (
-            <IconButton
-              color="inherit"
-              onClick={handleLogout}
-              sx={{ marginLeft: "auto" }}
-            >
-              <LogoutIcon />
-            </IconButton>
+            <div style={{ marginLeft: "auto " }}>
+              <span style={{ textTransform: "capitalize" }}>
+                {localStorage.name || ""}
+              </span>
+              <IconButton
+                color="inherit"
+                onClick={handleLogout}
+                sx={{ marginLeft: 2 }}
+              >
+                <LogoutIcon />
+              </IconButton>
+            </div>
           )}
         </Toolbar>
       </AppBar>
