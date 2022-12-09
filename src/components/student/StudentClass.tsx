@@ -27,7 +27,7 @@ function StudentClass() {
         <Grid
           item
           xs={12}
-          md={5}
+          md={3}
           lg={3}
           mr={2}
           display="flex"
@@ -37,11 +37,22 @@ function StudentClass() {
           <Typography>{location.state.description}</Typography>
         </Grid>
         <Divider orientation="vertical" className="divider" />
-        <Grid item xs={12} md={6} lg={8} display="flex" flexWrap={"wrap"}>
+        <Grid
+          item
+          xs={12}
+          md={8}
+          lg={8}
+          display="flex"
+          flexWrap={"wrap"}
+        >
           {data &&
             data.map((d) => {
               return (
-                <Grid item xs={12} md={4} lg={3}>
+                <Grid
+                  item
+                  xs={12}
+                  md={6}
+                  lg={4}                >
                   <MuiCard
                     date={d.dueDate}
                     submit={() => navigate(`../student/assignment/${d.id}`)}
@@ -50,6 +61,7 @@ function StudentClass() {
                 </Grid>
               );
             })}
+        
         </Grid>
       </Grid>
     </Grid>
