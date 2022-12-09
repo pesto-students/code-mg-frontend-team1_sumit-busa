@@ -14,6 +14,7 @@ import InviteStudent from "./InviteStudent";
 import { useNavigate } from "react-router-dom";
 import { useGetClassQuery } from "../../services/api";
 import CreateNewClass from "./CreateNewClass";
+import MuiCardTeacherDashboard from "../common/MuiCardTeacherDashboard";
 
 function TeacherDashboard() {
   let navigate = useNavigate();
@@ -83,7 +84,7 @@ function TeacherDashboard() {
           data.map((d) => {
             return (
               <Grid sm={12} md={6} lg={4} item key={d.id}>
-                <Card sx={{ margin: 3, p: 2 }}>
+                {/* <Card sx={{ margin: 3, p: 2 }}>
                   <Typography>{d.name}</Typography>
                   <div
                     style={{
@@ -107,7 +108,17 @@ function TeacherDashboard() {
                   >
                     <ArrowForwardIcon />
                   </IconButton>
-                </Card>
+                </Card> */}
+                <MuiCardTeacherDashboard
+                count={d._count["students"]}
+                iconButton={() => {
+                  navigate(d.id + "/assignment");
+                }}
+                name={d.name}
+                submit={() => handleClickOpen(d.id)}
+                
+                
+                />
               </Grid>
             );
           })}
