@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useGetAllSubmissionsTeacherQuery } from "../../services/api";
-import { Chip, Grid } from "@mui/material";
+import { Chip, Grid, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
-
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 const columns: GridColDef[] = [
-  { field: "id", headerName: "ID" },
+  { field: "id", headerName: "Submission ID", width: 130 },
   {
     renderCell: (d) => d.value.fullName,
     field: "student",
@@ -58,10 +58,20 @@ function TeacherSubmissions() {
   if (!data) return <>No Data available</>;
 
   return (
-    <Grid container justifyContent={"center"} height="80vh">
-      <Grid item xs={8}>
+    <Grid container justifyContent={"center"}>
+      <Grid item container xs={8} justifyContent="flex-start">
+        <Grid item>
+          <Typography variant="h4" style={{ marginBottom: "20px" }}>
+            Submissions for <NavigateNextIcon />
+            <span style={{ textTransform: "capitalize", marginLeft: 5 }}>
+              {data.assignment.title}
+            </span>
+          </Typography>
+        </Grid>
+      </Grid>
+      <Grid item xs={8} height="70vh">
         <DataGrid
-          rows={data}
+          rows={data.submissions}
           columns={columns}
           pageSize={20}
           // rowsPerPageOptions={[5]}

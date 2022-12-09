@@ -62,14 +62,17 @@ export interface CreateAssignment {
 
 
 export interface TeacherSubmission {
-  student: {
-    fullName: string;
-    email: string;
-  };
-  language: string;
-  status: string;
-  errorCount: number;
-  totalCount: number;
-  successCount: number;
-  updatedAt: string;
+  assignment: Assignment;
+  submissions: {
+    student: {
+      fullName: string;
+      email: string;
+    };
+    language: string;
+    status: string;
+    errorCount: number;
+    totalCount: number;
+    successCount: number;
+    updatedAt: string;
+  }[];
 }

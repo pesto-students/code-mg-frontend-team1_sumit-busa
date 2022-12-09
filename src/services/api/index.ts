@@ -74,7 +74,7 @@ export const api = createApi({
       query: (id) => ({ url: `/teacher/assignment?classId=${id}` }),
     }),
 
-    getAllSubmissionsTeacher: builder.query<TeacherSubmission[], number>({
+    getAllSubmissionsTeacher: builder.query<TeacherSubmission, number>({
       query: (id) => ({ url: `/teacher/submissions/${id}` }),
     }),
     getAllAssignmentsStudent: builder.query<AssignmentListStudent[], number>({
