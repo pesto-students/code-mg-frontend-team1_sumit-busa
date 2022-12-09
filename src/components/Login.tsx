@@ -7,6 +7,7 @@ import { parseJwt } from "../utils/helper";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [login] = useLoginMutation();
   const navigate = useNavigate();
 
@@ -19,7 +20,7 @@ function Login() {
     const password = "12345678";
     setEmail(email);
     setPassword(password);
-    handleLogin(email, password, "Teacher");
+    handleLogin(email, password);
   };
 
   const handleStudentLogin = () => {
@@ -27,14 +28,15 @@ function Login() {
     const password = "12345678";
     setEmail(email);
     setPassword(password);
-    handleLogin(email, password, "Student");
+    handleLogin(email, password);
   };
 
-  const handleLogin = async (email: string, password: string, role: string) => {
+  const handleLogin = async (email: string, password: string) => {
     try {
-      const result = await login({ email, password }).unwrap();
-      const data = parseJwt(result.token);
-      localStorage.token = result.token;
+      setIsLoading(true);
+      const { token, role } = await login({ email, password }).unwrap();
+      const data = parseJwt(token);
+      localStorage.token = token;
       localStorage.role = role;
       localStorage.email = data.email;
       localStorage.name = data.fullName;
@@ -51,6 +53,7 @@ function Login() {
       console.log(ex.data);
       alert(ex.error || ex.data.message);
     }
+    setIsLoading(false);
   };
   return (
     <Grid
@@ -82,14 +85,15 @@ function Login() {
           />
         </Grid>
 
-        {/* <Grid item>
+        <Grid item>
           <Button
+            disabled={isLoading}
             variant="contained"
             onClick={() => handleLogin(email, password)}
           >
             Login
           </Button>
-        </Grid> */}
+        </Grid>
 
         <Grid
           item
@@ -100,17 +104,29 @@ function Login() {
           direction="row"
         >
           <Grid item>
-            <Button variant="contained" onClick={handleAdminLogin}>
+            <Button
+              variant="contained"
+              disabled={isLoading}
+              onClick={handleAdminLogin}
+            >
               Demo Admin Login
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained" onClick={handleTeacherLogin}>
+            <Button
+              variant="contained"
+              disabled={isLoading}
+              onClick={handleTeacherLogin}
+            >
               Demo Teacher Login
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained" onClick={handleStudentLogin}>
+            <Button
+              variant="contained"
+              disabled={isLoading}
+              onClick={handleStudentLogin}
+            >
               Demo Student Login
             </Button>
           </Grid>
@@ -121,7 +137,3 @@ function Login() {
 }
 
 export default Login;
-function useRouter() {
-  throw new Error("Function not implemented.");
-}
-

@@ -2,12 +2,16 @@ import * as React from 'react';
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useGetAllSubmissionsTeacherQuery } from "../../services/api";
 import { Chip, Grid, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 const columns: GridColDef[] = [
   { field: "id", headerName: "Submission ID", width: 130 },
   {
-    renderCell: (d) => d.value.fullName,
+    renderCell: (d) => {
+      return (
+        <Link to={"/teacher/submission/" + d.row.id}>{d.value.fullName}</Link>
+      );
+    },
     field: "student",
     headerName: "Student name",
     width: 160,

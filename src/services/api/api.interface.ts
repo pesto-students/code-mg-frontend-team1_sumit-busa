@@ -1,3 +1,5 @@
+import { Status } from "../../components/student/MonacoEditor";
+
 export interface AssignmentListTeacher {
   id: number;
   title: string;
@@ -60,8 +62,7 @@ export interface CreateAssignment {
   allowedLanguages: string[];
 }
 
-
-export interface TeacherSubmission {
+export interface TeacherSubmissions {
   assignment: Assignment;
   submissions: {
     student: {
@@ -75,4 +76,14 @@ export interface TeacherSubmission {
     successCount: number;
     updatedAt: string;
   }[];
+}
+
+export interface TeacherSubmission extends Submission {
+  student: { fullName: string };
+  status: "Pass" | "Fail";
+  result: typeof Status[keyof typeof Status];
+  assignment: {
+    problemStatement: string;
+    title: string;
+  };
 }

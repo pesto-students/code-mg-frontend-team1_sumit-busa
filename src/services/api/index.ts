@@ -9,6 +9,7 @@ import {
   AssignmentListStudent,
   AssignmentListTeacher,
   TeacherSubmission,
+  TeacherSubmissions,
 } from "./api.interface";
 
 export const api = createApi({
@@ -74,8 +75,11 @@ export const api = createApi({
       query: (id) => ({ url: `/teacher/assignment?classId=${id}` }),
     }),
 
-    getAllSubmissionsTeacher: builder.query<TeacherSubmission, number>({
+    getAllSubmissionsTeacher: builder.query<TeacherSubmissions, number>({
       query: (id) => ({ url: `/teacher/submissions/${id}` }),
+    }),
+    getSubmissionTeacher: builder.query<TeacherSubmission, number>({
+      query: (id) => ({ url: `/teacher/submission/${id}` }),
     }),
     getAllAssignmentsStudent: builder.query<AssignmentListStudent[], number>({
       query: (id) => ({ url: `/student/assignment?classId=${id}` }),
@@ -94,6 +98,7 @@ export const {
   useAddStudentMutation, //done
   useCreateClassMutation, //done
   useCreateAssignmentMutation,
+  useGetSubmissionTeacherQuery,
   useGetAllAssignmentsTeacherQuery,
   useGetAllAssignmentsStudentQuery,
   useGetAllClassesStudentQuery,

@@ -10,6 +10,7 @@ import {
   TEACHER_CREATE_ASSIGNMENT_ROUTE,
   TEACHER_DASHBOARD_ROUTE,
   TEACHER_SUBMISSIONS_ROUTE,
+  TEACHER_SUBMISSION_ROUTE,
 } from "../utils/routesConstants";
 import { getRole, isLoggedIn, Role } from "../utils/tokensHelper";
 import Register from "../components/Register";
@@ -22,6 +23,7 @@ import StudentDashboard from "../components/student/StudentDashboard";
 import StudentClass from "../components/student/StudentClass";
 import { Suspense } from "react";
 import React from "react";
+import TeacherSubmission from "../components/teacher/TeacherSubmission";
 const StudentAssignmentScreen = React.lazy(
   () => import("../components/StudentAssignmentScreen")
 );
@@ -105,6 +107,14 @@ function MyRoutes() {
         element={
           <ProtectedRoute role="Teacher">
             <TeacherSubmissions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path={TEACHER_SUBMISSION_ROUTE}
+        element={
+          <ProtectedRoute role="Teacher">
+            <TeacherSubmission />
           </ProtectedRoute>
         }
       />
