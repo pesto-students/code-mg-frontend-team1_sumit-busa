@@ -13,6 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./style.css";
 import { useGetAllAssignmentsTeacherQuery } from "../../services/api";
 import { getFormattedDate } from "../../utils/helper";
+import MuiCardTeacher from "../common/MuiCardTeacher";
 function TeacherAssignment() {
   let navigate = useNavigate();
   const { classId } = useParams();
@@ -37,15 +38,26 @@ function TeacherAssignment() {
   return (
     <div className="mainContainer">
       <Grid container>
-        <Grid item xs={12} textAlign="end">
-          <Button
-            variant="contained"
-            onClick={handleClickOpen}
-            sx={{ marginRight: 3 }}
-          >
-            New Assignment
-          </Button>
+        <Grid item container xs={12} justifyContent="space-between">
+          <Grid item>
+            <Typography
+              variant="h4"
+              style={{ marginBottom: "5px", marginLeft: "20px" }}
+            >
+              List of Assignments
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              onClick={handleClickOpen}
+              sx={{ marginRight: 3 }}
+            >
+              New Assignment
+            </Button>
+          </Grid>
         </Grid>
+        <Grid item xs={12} textAlign="end"></Grid>
       </Grid>
       {data?.length == 0 ? (
         <Typography>No Assignment present , you need to create one</Typography>
@@ -55,24 +67,13 @@ function TeacherAssignment() {
             data.map((d) => {
               return (
                 <Grid sm={12} md={6} lg={4} item textAlign={"left"}>
-                  <Card sx={{ margin: 3, p: 2 }}>
-                    <Typography variant="h5" sx={{ m: 1 }}>
-                      {d.title}
-                    </Typography>
-                    <Typography variant="body1">
-                      Created on : {getFormattedDate(d.createdAt)}
-                    </Typography>
-                    <Typography variant="body1">
-                      Due Date: {getFormattedDate(d.dueDate)}
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      sx={{ mt: 3 }}
-                      onClick={() => navigate(`/teacher/${d.id}/submission`)}
-                    >
-                      {d._count.submissions} Submissions
-                    </Button>
-                  </Card>
+                  <MuiCardTeacher
+                    title={d.title}
+                    createdAt={d.createdAt}
+                    dueDate={d.dueDate}
+                    submissions={d._count.submissions}
+                    submit={() => navigate(`/teacher/${d.id}/submission`)}
+                  />
                 </Grid>
               );
             })}

@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useGetAllAssignmentsStudentQuery } from "../../services/api";
 import { getFormattedDate } from "../../utils/helper";
 import { STUDENT_ASSIGNMENT_ROUTE } from "../../utils/routesConstants";
+import MuiCard from "../common/MuiCardDueDate";
 import "./style.css";
 function StudentClass() {
   const { classId } = useParams();
@@ -41,22 +42,11 @@ function StudentClass() {
             data.map((d) => {
               return (
                 <Grid item xs={12} md={4} lg={3}>
-                  <Card sx={{ margin: 3, p: 2 }}>
-                    <Typography variant="h5" sx={{ m: 1 }}>
-                      {d.title}
-                    </Typography>
-                    <Typography variant="body1"></Typography>
-                    <Typography variant="body1">
-                      Due Date: {getFormattedDate(d.dueDate)}
-                    </Typography>
-                    <Button
-                      variant="outlined"
-                      sx={{ mt: 3 }}
-                      onClick={() => navigate(`../student/assignment/${d.id}`)}
-                    >
-                      start
-                    </Button>
-                  </Card>
+                  <MuiCard
+                    date={d.dueDate}
+                    submit={() => navigate(`../student/assignment/${d.id}`)}
+                    title={d.title}
+                  />
                 </Grid>
               );
             })}

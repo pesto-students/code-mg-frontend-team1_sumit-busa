@@ -2,6 +2,8 @@ import { Button, Card, Grid, LinearProgress, Typography } from "@mui/material";
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetAllClassesStudentQuery } from "../../services/api";
+import MuiCardThreeLine from "../common/MuiCardDueThreeLine";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 function StudentDashboard() {
   const { data, isLoading, isSuccess, isError, error } =
@@ -15,32 +17,27 @@ function StudentDashboard() {
   }
   return (
     <Grid container>
+      <Grid item container xs={12} justifyContent="flex-start">
+        <Grid item>
+          <Typography
+            variant="h4"
+            style={{ marginBottom: "5px", marginLeft: "20px" }}
+          >
+            List of Classes
+            <NavigateNextIcon />
+          </Typography>
+        </Grid>
+      </Grid>
       {data &&
         data.map((d) => {
           return (
             <Grid sm={12} md={6} lg={4} item>
-              <Card
-                sx={{ margin: 3, p: 2, textAlign: "left" }}
-                onClick={() => {
-                  navigate("class/" + d.id,{state:d});
-                }}
-              >
-
-                <Typography m={2} mb={0} variant="h5">
-                  {d.name}
-                </Typography>
-                <Typography mx={2} mb={5}>
-                  {d.description}
-                </Typography>
-                <Typography mx={2}>
-                  {d._count.assignments ?? 0} Assignments
-                </Typography>
-                {/* <LinearProgress
-                  variant="determinate"
-                  value={20}
-                  sx={{ margin: 2, height: "10px" }}
-                /> */}
-              </Card>
+              <MuiCardThreeLine
+                count={d._count.assignments}
+                description={d.description}
+                name={d.name}
+                submit={() => navigate("class/" + d.id, { state: d })}
+              />
             </Grid>
           );
         })}

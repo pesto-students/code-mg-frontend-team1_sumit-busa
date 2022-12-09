@@ -7,6 +7,7 @@ export const TEACHER_CREATE_ASSIGNMENT_ROUTE =
 export const TEACHER_ASSIGNMENT_ROUTE = "/teacher/:classId/assignment";
 export const TEACHER_DASHBOARD_ROUTE = "/teacher/";
 export const TEACHER_SUBMISSIONS_ROUTE = "/teacher/:assignmentId/submission";
+export const TEACHER_SUBMISSION_ROUTE = "/teacher/submission/:submissionId";
 
 //student
 export const STUDENT_DASHBOARD_ROUTE = '/student/dashboard';
