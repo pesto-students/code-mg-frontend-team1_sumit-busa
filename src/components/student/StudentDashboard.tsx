@@ -3,6 +3,7 @@ import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetAllClassesStudentQuery } from "../../services/api";
 import MuiCardThreeLine from "../common/MuiCardDueThreeLine";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
 function StudentDashboard() {
   const { data, isLoading, isSuccess, isError, error } =
@@ -16,6 +17,17 @@ function StudentDashboard() {
   }
   return (
     <Grid container>
+      <Grid item container xs={12} justifyContent="flex-start">
+        <Grid item>
+          <Typography
+            variant="h4"
+            style={{ marginBottom: "5px", marginLeft: "20px" }}
+          >
+            List of Classes
+            <NavigateNextIcon />
+          </Typography>
+        </Grid>
+      </Grid>
       {data &&
         data.map((d) => {
           return (

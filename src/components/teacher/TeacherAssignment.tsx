@@ -38,15 +38,26 @@ function TeacherAssignment() {
   return (
     <div className="mainContainer">
       <Grid container>
-        <Grid item xs={12} textAlign="end">
-          <Button
-            variant="contained"
-            onClick={handleClickOpen}
-            sx={{ marginRight: 3 }}
-          >
-            New Assignment
-          </Button>
+        <Grid item container xs={12} justifyContent="space-between">
+          <Grid item>
+            <Typography
+              variant="h4"
+              style={{ marginBottom: "5px", marginLeft: "20px" }}
+            >
+              List of Assignments
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Button
+              variant="contained"
+              onClick={handleClickOpen}
+              sx={{ marginRight: 3 }}
+            >
+              New Assignment
+            </Button>
+          </Grid>
         </Grid>
+        <Grid item xs={12} textAlign="end"></Grid>
       </Grid>
       {data?.length == 0 ? (
         <Typography>No Assignment present , you need to create one</Typography>
@@ -56,13 +67,12 @@ function TeacherAssignment() {
             data.map((d) => {
               return (
                 <Grid sm={12} md={6} lg={4} item textAlign={"left"}>
-                
                   <MuiCardTeacher
-                  title={d.title}
-                  createdAt={d.createdAt}
-                  dueDate={d.dueDate}
-                  submissions = {d._count.submissions}
-                  submit={()=>navigate(`/teacher/${d.id}/submission`)}
+                    title={d.title}
+                    createdAt={d.createdAt}
+                    dueDate={d.dueDate}
+                    submissions={d._count.submissions}
+                    submit={() => navigate(`/teacher/${d.id}/submission`)}
                   />
                 </Grid>
               );
