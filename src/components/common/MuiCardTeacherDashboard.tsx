@@ -1,4 +1,11 @@
-import { Button, Card, CardContent, CardMedia, IconButton, Typography } from "@mui/material";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardMedia,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import React, { useMemo } from "react";
 import { getFormattedDate } from "../../utils/helper";
 import { randomImage } from "../../utils/randomImage";
@@ -13,7 +20,7 @@ interface Props {
 function MuiCardTeacherDashboard(props: Props) {
   const image = useMemo(() => randomImage(), []);
   return (
-    <Card sx={{ margin: 3, p: 2, minWidth: "300px" }}>
+    <Card sx={{ margin: 3, p: 2, minWidth: "300px", maxWidth: "300px" }}>
       <CardMedia
         component="img"
         height="140"
@@ -47,4 +54,4 @@ function MuiCardTeacherDashboard(props: Props) {
   );
 }
 
-export default MuiCardTeacherDashboard
+export default MuiCardTeacherDashboard;

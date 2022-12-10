@@ -10,7 +10,7 @@ interface Props {
 }
 function MuiCardWithDate(props: Props) {
   return (
-    <Card sx={{ margin: 3, p: 2, minWidth:"300px" }} >
+    <Card sx={{ margin: 3, p: 2, minWidth:"300px" ,maxWidth:"300px" }} >
         <CardMedia
         component="img"
         height="140"

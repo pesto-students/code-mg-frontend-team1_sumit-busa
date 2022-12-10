@@ -19,7 +19,7 @@ interface Props {
 function MuiCardThreeLine(props: Props) {
   return (
     <Card
-      sx={{ margin: 3, p: 2, textAlign: "left", minWidth: "300px" }}
+      sx={{ margin: 3, p: 2, textAlign: "left", minWidth: "300px",maxWidth:"300px"  }}
       onClick={() => props.submit()}
     >
       <CardMedia
