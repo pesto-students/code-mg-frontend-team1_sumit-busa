@@ -20,7 +20,7 @@ interface Props {
 function MuiCardTeacherDashboard(props: Props) {
   const image = useMemo(() => randomImage(), []);
   return (
-    <Card sx={{ margin: 3, p: 2, minWidth: "300px", maxWidth: "300px" }}>
+    <Card sx={{ margin: 3, p: 2, minWidth: "300px" }}>
       <CardMedia
         component="img"
         height="140"
